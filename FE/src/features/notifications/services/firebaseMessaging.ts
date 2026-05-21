@@ -1,9 +1,37 @@
-// FCM 등록 위한 Firebase app 초기화, getMessaging() 설정파일
+import { initializeApp } from "firebase/app";
+import { getMessaging, getToken, isSupported } from "firebase/messaging";
 
-// 필요한 환경변수 목록
-// VITE_FIREBASE_API_KEY=
-// VITE_FIREBASE_AUTH_DOMAIN=
-// VITE_FIREBASE_PROJECT_ID=
-// VITE_FIREBASE_MESSAGING_SENDER_ID=
-// VITE_FIREBASE_APP_ID=
-// VITE_FIREBASE_VAPID_KEY=
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+
+export const getFirebaseMessaging = async () => {
+  const supported = await isSupported();
+
+  if (!supported) {
+    return null;
+  }
+
+  return getMessaging(firebaseApp);
+};
+
+export const getFirebaseToken = async (
+  serviceWorkerRegistration?: ServiceWorkerRegistration,
+) => {
+  const messaging = await getFirebaseMessaging();
+
+  if (!messaging) {
+    return null;
+  }
+
+  return getToken(messaging, {
+    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    serviceWorkerRegistration,
+  });
+};
