@@ -1,4 +1,14 @@
 package com.example.demo.dto;
 
-public class Notice {
+import java.time.LocalDate;
+
+public record Notice(
+        String id,
+        String title,
+        String category,
+        String author,
+        LocalDate publishedDate,
+        String url,
+        String source
+) {
 }
