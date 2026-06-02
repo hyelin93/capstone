@@ -13,6 +13,7 @@ class NoticeCrawlerTest {
     private final NoticeCrawler noticeCrawler = new NoticeCrawler();
 
     @Test
+    // 학사공지 목록 HTML 행을 Notice DTO로 파싱하는지 검증합니다.
     void parsesAcademicNoticeRows() {
         String html = """
                 <table>
@@ -48,7 +49,7 @@ class NoticeCrawlerTest {
                 .containsExactly(
                         "test-notice",
                         "2026학년도 하계계절학기 폐강과목 공고",
-                        "수업",
+                        "학사공지",
                         "학사지원팀",
                         "https://www.syu.ac.kr/blog/test-notice/",
                         "학사공지"
@@ -57,6 +58,7 @@ class NoticeCrawlerTest {
     }
 
     @Test
+    // 쿼리 문자열만 다른 동일 공지 URL을 중복 제거하는지 검증합니다.
     void removesDuplicateRowsByCanonicalUrl() {
         String html = """
                 <table>
@@ -78,5 +80,30 @@ class NoticeCrawlerTest {
 
         assertThat(notices).hasSize(1);
         assertThat(notices.get(0).title()).isEqualTo("첫 번째");
+    }
+
+    @Test
+    // 게시판 이름을 Notice의 category 필드로 사용하는지 검증합니다.
+    void usesBoardNameAsNoticeCategory() {
+        String html = """
+                <table>
+                  <tr>
+                    <td class="step2">
+                      <a class="itembx" href="/blog/event-notice/">
+                        <span class="md_cate">부서행사</span>
+                        <span class="tit">행사 안내</span>
+                      </a>
+                    </td>
+                    <td class="step3">학생처</td>
+                    <td class="step4">2026.06.01</td>
+                  </tr>
+                </table>
+                """;
+        Document document = Jsoup.parse(html, "https://www.syu.ac.kr/university-square/notice/event/");
+
+        List<Notice> notices = noticeCrawler.parseNoticeList(document, "행사공지");
+
+        assertThat(notices).hasSize(1);
+        assertThat(notices.get(0).category()).isEqualTo("행사공지");
     }
 }

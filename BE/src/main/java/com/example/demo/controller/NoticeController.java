@@ -13,11 +13,13 @@ import java.util.List;
 public class NoticeController {
     private final NoticeService noticeService;
 
+    // 공지 API에서 사용할 서비스 의존성을 주입받습니다.
     public NoticeController(NoticeService noticeService) {
         this.noticeService = noticeService;
     }
 
     @GetMapping
+    // 최신 공지 목록을 HTTP 응답으로 반환합니다.
     public List<Notice> getNotices() {
         return noticeService.getLatestNotices();
     }
