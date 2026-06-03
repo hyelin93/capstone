@@ -4,6 +4,8 @@ import com.example.demo.dto.Notice;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,6 +22,7 @@ import java.util.regex.Pattern;
 
 @Component
 public class NoticeCrawler {
+    private static final Logger log = LoggerFactory.getLogger(NoticeCrawler.class);
     private static final int TIMEOUT_MILLIS = (int) Duration.ofSeconds(5).toMillis();
     private static final Pattern DATE_PATTERN = Pattern.compile("(\\d{4})[.\\-/](\\d{1,2})[.\\-/](\\d{1,2})");
     private static final List<CrawlTarget> NOTICE_TARGETS = List.of(
@@ -37,26 +40,58 @@ public class NoticeCrawler {
 
     // 문서에 정의된 공지 게시판들의 첫 페이지에서 공지 데이터를 크롤링합니다.
     public List<Notice> crawlNoticeBoards() {
+        long startedAt = System.nanoTime();
+        int crawledCount = 0;
         Map<String, Notice> noticesByUrl = new LinkedHashMap<>();
+        log.info("공지 게시판 전체 크롤링 시작: boardCount={}", NOTICE_TARGETS.size());
+
         for (CrawlTarget target : NOTICE_TARGETS) {
-            for (Notice notice : crawl(target.url(), target.category())) {
+            List<Notice> notices = crawl(target.url(), target.category());
+            crawledCount += notices.size();
+            for (Notice notice : notices) {
                 noticesByUrl.putIfAbsent(notice.url(), notice);
             }
         }
 
-        return new ArrayList<>(noticesByUrl.values());
+        List<Notice> uniqueNotices = new ArrayList<>(noticesByUrl.values());
+        log.info(
+                "공지 게시판 전체 크롤링 완료: boardCount={}, crawledCount={}, uniqueCount={}, duplicateCount={}, elapsedMs={}",
+                NOTICE_TARGETS.size(),
+                crawledCount,
+                uniqueNotices.size(),
+                crawledCount - uniqueNotices.size(),
+                elapsedMillis(startedAt)
+        );
+        return uniqueNotices;
     }
 
     // 전달받은 목록 URL을 요청하고 공지 항목 목록으로 파싱합니다.
     public List<Notice> crawl(String listUrl, String category) {
+        long startedAt = System.nanoTime();
+        log.info("공지 크롤링 시작: category={}, url={}", category, listUrl);
         try {
             Document document = Jsoup.connect(listUrl)
                     .userAgent("Mozilla/5.0 (compatible; SYU-Capstone-NoticeCrawler/1.0)")
                     .timeout(TIMEOUT_MILLIS)
                     .get();
 
-            return parseNoticeList(document, category);
+            List<Notice> notices = parseNoticeList(document, category);
+            log.info(
+                    "공지 크롤링 완료: category={}, url={}, count={}, elapsedMs={}",
+                    category,
+                    listUrl,
+                    notices.size(),
+                    elapsedMillis(startedAt)
+            );
+            return notices;
         } catch (IOException e) {
+            log.error(
+                    "공지 크롤링 실패: category={}, url={}, elapsedMs={}",
+                    category,
+                    listUrl,
+                    elapsedMillis(startedAt),
+                    e
+            );
             throw new IllegalStateException("공지 목록을 가져오지 못했습니다: " + listUrl, e);
         }
     }
@@ -168,5 +203,10 @@ public class NoticeCrawler {
         }
 
         return value.replaceAll("\\s+", " ").trim();
+    }
+
+    // 시작 시각부터 현재까지 걸린 시간을 밀리초 단위로 계산합니다.
+    private long elapsedMillis(long startedAt) {
+        return Duration.ofNanos(System.nanoTime() - startedAt).toMillis();
     }
 }

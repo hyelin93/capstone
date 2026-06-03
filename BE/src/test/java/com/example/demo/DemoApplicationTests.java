@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class DemoApplicationTests {
 
     @Test
+    // Spring Boot 애플리케이션 컨텍스트가 정상 로드되는지 검증합니다.
     void contextLoads() {
     }
 
