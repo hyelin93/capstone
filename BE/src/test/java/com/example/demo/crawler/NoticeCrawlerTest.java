@@ -5,7 +5,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -124,6 +127,55 @@ class NoticeCrawlerTest {
         assertThat(noticeFromBoard("채용공고").keyword()).isEqualTo("채용공고");
     }
 
+    @Test
+    // 게시판 크롤링이 일시 실패하면 재시도 후 성공 결과를 반환하는지 검증합니다.
+    void retriesBoardCrawlingUntilSuccess() {
+        Map<String, Integer> attemptsByUrl = new HashMap<>();
+        NoticeCrawler retryingCrawler = new NoticeCrawler(
+                List.of(new NoticeCrawler.CrawlTarget("학사공지", "https://www.syu.ac.kr/retry/")),
+                listUrl -> {
+                    int attempt = attemptsByUrl.merge(listUrl, 1, Integer::sum);
+                    if (attempt == 1) {
+                        throw new IOException("temporary failure");
+                    }
+
+                    return noticeDocument("/blog/retry-notice/", "재시도 성공 공지", "학사지원팀");
+                }
+        );
+
+        List<Notice> notices = retryingCrawler.crawlNoticeBoards();
+
+        assertThat(attemptsByUrl.get("https://www.syu.ac.kr/retry/")).isEqualTo(2);
+        assertThat(notices).hasSize(1);
+        assertThat(notices.get(0).originNoticeId()).isEqualTo("retry-notice");
+    }
+
+    @Test
+    // 한 게시판이 최종 실패해도 다른 게시판의 크롤링 결과는 유지하는지 검증합니다.
+    void keepsSuccessfulBoardsWhenAnotherBoardFails() {
+        Map<String, Integer> attemptsByUrl = new HashMap<>();
+        NoticeCrawler partialCrawler = new NoticeCrawler(
+                List.of(
+                        new NoticeCrawler.CrawlTarget("학사공지", "https://www.syu.ac.kr/success/"),
+                        new NoticeCrawler.CrawlTarget("행사공지", "https://www.syu.ac.kr/fail/")
+                ),
+                listUrl -> {
+                    attemptsByUrl.merge(listUrl, 1, Integer::sum);
+                    if (listUrl.endsWith("/fail/")) {
+                        throw new IOException("permanent failure");
+                    }
+
+                    return noticeDocument("/blog/success-notice/", "성공 공지", "학사지원팀");
+                }
+        );
+
+        List<Notice> notices = partialCrawler.crawlNoticeBoards();
+
+        assertThat(attemptsByUrl.get("https://www.syu.ac.kr/fail/")).isEqualTo(3);
+        assertThat(notices).hasSize(1);
+        assertThat(notices.get(0).originNoticeId()).isEqualTo("success-notice");
+    }
+
     // 테스트에서 사용할 게시판별 공지 DTO를 파싱합니다.
     private Notice noticeFromBoard(String boardName) {
         String html = """
@@ -137,5 +189,19 @@ class NoticeCrawlerTest {
         Document document = Jsoup.parse(html, "https://www.syu.ac.kr/");
 
         return noticeCrawler.parseNoticeList(document, boardName).get(0);
+    }
+
+    // 테스트에서 사용할 공지 목록 HTML 문서를 생성합니다.
+    private Document noticeDocument(String href, String title, String department) {
+        String html = """
+                <table>
+                  <tr>
+                    <td class="step2"><a class="itembx" href="%s"><span class="tit">%s</span></a></td>
+                    <td class="step3">%s</td>
+                  </tr>
+                </table>
+                """.formatted(href, title, department);
+
+        return Jsoup.parse(html, "https://www.syu.ac.kr/");
     }
 }

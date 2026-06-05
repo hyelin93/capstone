@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 public class NoticeCrawler {
     private static final Logger log = LoggerFactory.getLogger(NoticeCrawler.class);
     private static final int TIMEOUT_MILLIS = (int) Duration.ofSeconds(5).toMillis();
+    private static final int MAX_CRAWL_ATTEMPTS = 3;
     private static final List<CrawlTarget> NOTICE_TARGETS = List.of(
             new CrawlTarget("학사공지", "https://www.syu.ac.kr/academic/academic-notice/"),
             new CrawlTarget("행사공지", "https://www.syu.ac.kr/university-square/notice/event/"),
@@ -32,65 +33,139 @@ public class NoticeCrawler {
             new CrawlTarget("채용공고", "https://www.syu.ac.kr/university-square/notice/recruitment/")
     );
 
-    private record CrawlTarget(String category, String url) {
+    private final List<CrawlTarget> noticeTargets;
+    private final NoticeDocumentFetcher documentFetcher;
+
+    // 기본 크롤링 대상과 Jsoup 요청 함수를 사용해 크롤러를 생성합니다.
+    public NoticeCrawler() {
+        this(NOTICE_TARGETS, NoticeCrawler::fetchDocument);
+    }
+
+    // 테스트에서 크롤링 대상과 문서 요청 함수를 주입할 수 있게 크롤러를 생성합니다.
+    NoticeCrawler(List<CrawlTarget> noticeTargets, NoticeDocumentFetcher documentFetcher) {
+        this.noticeTargets = noticeTargets;
+        this.documentFetcher = documentFetcher;
+    }
+
+    record CrawlTarget(String category, String url) {
+    }
+
+    @FunctionalInterface
+    interface NoticeDocumentFetcher {
+        // 전달받은 목록 URL의 HTML 문서를 가져옵니다.
+        Document fetch(String listUrl) throws IOException;
     }
 
     // 문서에 정의된 공지 게시판들의 첫 페이지에서 공지 데이터를 크롤링합니다.
     public List<Notice> crawlNoticeBoards() {
         long startedAt = System.nanoTime();
         int crawledCount = 0;
+        List<String> failedCategories = new ArrayList<>();
         Map<String, Notice> noticesByUrl = new LinkedHashMap<>();
-        log.info("공지 게시판 전체 크롤링 시작: boardCount={}", NOTICE_TARGETS.size());
+        log.info("공지 게시판 전체 크롤링 시작: boardCount={}", noticeTargets.size());
 
-        for (CrawlTarget target : NOTICE_TARGETS) {
-            List<Notice> notices = crawl(target.url(), target.category());
-            crawledCount += notices.size();
-            for (Notice notice : notices) {
-                noticesByUrl.putIfAbsent(notice.url(), notice);
+        for (CrawlTarget target : noticeTargets) {
+            try {
+                List<Notice> notices = crawl(target.url(), target.category());
+                crawledCount += notices.size();
+                for (Notice notice : notices) {
+                    noticesByUrl.putIfAbsent(notice.url(), notice);
+                }
+            } catch (IllegalStateException e) {
+                failedCategories.add(target.category());
+                log.warn(
+                        "공지 게시판 크롤링 실패로 제외: category={}, url={}, reason={}",
+                        target.category(),
+                        target.url(),
+                        e.getMessage()
+                );
             }
         }
 
         List<Notice> uniqueNotices = new ArrayList<>(noticesByUrl.values());
-        log.info(
-                "공지 게시판 전체 크롤링 완료: boardCount={}, crawledCount={}, uniqueCount={}, duplicateCount={}, elapsedMs={}",
-                NOTICE_TARGETS.size(),
-                crawledCount,
-                uniqueNotices.size(),
-                crawledCount - uniqueNotices.size(),
-                elapsedMillis(startedAt)
-        );
+        if (failedCategories.isEmpty()) {
+            log.info(
+                    "공지 게시판 전체 크롤링 완료: boardCount={}, successBoardCount={}, failedBoardCount=0, crawledCount={}, uniqueCount={}, duplicateCount={}, elapsedMs={}",
+                    noticeTargets.size(),
+                    noticeTargets.size(),
+                    crawledCount,
+                    uniqueNotices.size(),
+                    crawledCount - uniqueNotices.size(),
+                    elapsedMillis(startedAt)
+            );
+        } else {
+            log.warn(
+                    "공지 게시판 부분 크롤링 완료: boardCount={}, successBoardCount={}, failedBoardCount={}, failedCategories={}, crawledCount={}, uniqueCount={}, duplicateCount={}, elapsedMs={}",
+                    noticeTargets.size(),
+                    noticeTargets.size() - failedCategories.size(),
+                    failedCategories.size(),
+                    failedCategories,
+                    crawledCount,
+                    uniqueNotices.size(),
+                    crawledCount - uniqueNotices.size(),
+                    elapsedMillis(startedAt)
+            );
+        }
         return uniqueNotices;
     }
 
     // 전달받은 목록 URL을 요청하고 공지 항목 목록으로 파싱합니다.
     private List<Notice> crawl(String listUrl, String category) {
         long startedAt = System.nanoTime();
-        log.info("공지 크롤링 시작: category={}, url={}", category, listUrl);
-        try {
-            Document document = Jsoup.connect(listUrl)
-                    .userAgent("Mozilla/5.0 (compatible; SYU-Capstone-NoticeCrawler/1.0)")
-                    .timeout(TIMEOUT_MILLIS)
-                    .get();
+        IOException lastException = null;
+        log.info("공지 크롤링 시작: category={}, url={}, maxAttempts={}", category, listUrl, MAX_CRAWL_ATTEMPTS);
 
-            List<Notice> notices = parseNoticeList(document, category);
-            log.info(
-                    "공지 크롤링 완료: category={}, url={}, count={}, elapsedMs={}",
-                    category,
-                    listUrl,
-                    notices.size(),
-                    elapsedMillis(startedAt)
-            );
-            return notices;
-        } catch (IOException e) {
-            log.error(
-                    "공지 크롤링 실패: category={}, url={}, elapsedMs={}",
-                    category,
-                    listUrl,
-                    elapsedMillis(startedAt),
-                    e
-            );
-            throw new IllegalStateException("공지 목록을 가져오지 못했습니다: " + listUrl, e);
+        for (int attempt = 1; attempt <= MAX_CRAWL_ATTEMPTS; attempt++) {
+            long attemptStartedAt = System.nanoTime();
+            try {
+                Document document = documentFetcher.fetch(listUrl);
+
+                List<Notice> notices = parseNoticeList(document, category);
+                log.info(
+                        "공지 크롤링 완료: category={}, url={}, attempt={}, count={}, attemptElapsedMs={}, elapsedMs={}",
+                        category,
+                        listUrl,
+                        attempt,
+                        notices.size(),
+                        elapsedMillis(attemptStartedAt),
+                        elapsedMillis(startedAt)
+                );
+                return notices;
+            } catch (IOException e) {
+                lastException = e;
+                if (attempt < MAX_CRAWL_ATTEMPTS) {
+                    log.warn(
+                            "공지 크롤링 재시도 예정: category={}, url={}, attempt={}, maxAttempts={}, attemptElapsedMs={}",
+                            category,
+                            listUrl,
+                            attempt,
+                            MAX_CRAWL_ATTEMPTS,
+                            elapsedMillis(attemptStartedAt),
+                            e
+                    );
+                    continue;
+                }
+
+                log.error(
+                        "공지 크롤링 최종 실패: category={}, url={}, attempts={}, elapsedMs={}",
+                        category,
+                        listUrl,
+                        MAX_CRAWL_ATTEMPTS,
+                        elapsedMillis(startedAt),
+                        e
+                );
+            }
         }
+
+        throw new IllegalStateException("공지 목록을 가져오지 못했습니다: " + listUrl, lastException);
+    }
+
+    // Jsoup으로 전달받은 목록 URL의 HTML 문서를 요청합니다.
+    private static Document fetchDocument(String listUrl) throws IOException {
+        return Jsoup.connect(listUrl)
+                .userAgent("Mozilla/5.0 (compatible; SYU-Capstone-NoticeCrawler/1.0)")
+                .timeout(TIMEOUT_MILLIS)
+                .get();
     }
 
     // HTML 문서에서 공지 링크 행을 찾아 중복 없는 공지 목록으로 변환합니다.
