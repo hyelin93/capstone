@@ -39,22 +39,27 @@ class NoticeCrawlerTest {
         assertThat(notices).hasSize(1);
         assertThat(notices.get(0))
                 .extracting(
-                        Notice::id,
+                        Notice::noticeId,
                         Notice::title,
-                        Notice::category,
-                        Notice::author,
                         Notice::url,
-                        Notice::source
+                        Notice::content,
+                        Notice::department,
+                        Notice::keyword,
+                        Notice::crawledAt,
+                        Notice::processed,
+                        Notice::originNoticeId
                 )
                 .containsExactly(
-                        "test-notice",
+                        null,
                         "2026학년도 하계계절학기 폐강과목 공고",
-                        "학사공지",
-                        "학사지원팀",
                         "https://www.syu.ac.kr/blog/test-notice/",
-                        "학사공지"
+                        "",
+                        "학사지원팀",
+                        "학사",
+                        null,
+                        false,
+                        "test-notice"
                 );
-        assertThat(notices.get(0).publishedDate()).hasToString("2026-05-29");
     }
 
     @Test
@@ -83,8 +88,8 @@ class NoticeCrawlerTest {
     }
 
     @Test
-    // 게시판 이름을 Notice의 category 필드로 사용하는지 검증합니다.
-    void usesBoardNameAsNoticeCategory() {
+    // 게시판 이름을 Notice의 keyword 필드로 변환하는지 검증합니다.
+    void usesBoardNameAsNoticeKeyword() {
         String html = """
                 <table>
                   <tr>
@@ -104,6 +109,33 @@ class NoticeCrawlerTest {
         List<Notice> notices = noticeCrawler.parseNoticeList(document, "행사공지");
 
         assertThat(notices).hasSize(1);
-        assertThat(notices.get(0).category()).isEqualTo("행사공지");
+        assertThat(notices.get(0).keyword()).isEqualTo("행사");
+    }
+
+    @Test
+    // 문서에 정의된 게시판 이름을 저장용 키워드 값으로 변환하는지 검증합니다.
+    void mapsBoardNamesToKeywords() {
+        assertThat(noticeFromBoard("학사공지").keyword()).isEqualTo("학사");
+        assertThat(noticeFromBoard("행사공지").keyword()).isEqualTo("행사");
+        assertThat(noticeFromBoard("생활공지").keyword()).isEqualTo("생활");
+        assertThat(noticeFromBoard("취업·창업공지").keyword()).isEqualTo("취창업");
+        assertThat(noticeFromBoard("외부공지").keyword()).isEqualTo("외부");
+        assertThat(noticeFromBoard("추천채용").keyword()).isEqualTo("추천채용");
+        assertThat(noticeFromBoard("채용공고").keyword()).isEqualTo("채용공고");
+    }
+
+    // 테스트에서 사용할 게시판별 공지 DTO를 파싱합니다.
+    private Notice noticeFromBoard(String boardName) {
+        String html = """
+                <table>
+                  <tr>
+                    <td class="step2"><a class="itembx" href="/blog/test-notice/"><span class="tit">공지 제목</span></a></td>
+                    <td class="step3">담당 부서</td>
+                  </tr>
+                </table>
+                """;
+        Document document = Jsoup.parse(html, "https://www.syu.ac.kr/");
+
+        return noticeCrawler.parseNoticeList(document, boardName).get(0);
     }
 }

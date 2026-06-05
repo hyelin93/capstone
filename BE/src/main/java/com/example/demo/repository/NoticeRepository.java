@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface NoticeRepository extends JpaRepository<NoticeEntity, Integer> {
-    // URL로 저장된 공지가 있는지 확인합니다.
-    boolean existsByUrl(String url);
-
     // 저장된 공지 목록을 크롤링 시각과 번호 기준으로 최신순 조회합니다.
     List<NoticeEntity> findAllByOrderByCrawledAtDescNoticeIdDesc();
 

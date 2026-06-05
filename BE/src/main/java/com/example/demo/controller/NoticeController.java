@@ -19,7 +19,7 @@ public class NoticeController {
     }
 
     @GetMapping
-    // 최신 공지 목록을 HTTP 응답으로 반환합니다.
+    // 테스트용 API로 최신 공지 목록을 크롤링하고 저장된 공지 목록을 HTTP 응답으로 반환합니다.
     public List<Notice> getNotices() {
         return noticeService.getLatestNotices();
     }

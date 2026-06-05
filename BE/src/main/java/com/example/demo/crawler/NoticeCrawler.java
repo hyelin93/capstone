@@ -12,19 +12,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
 public class NoticeCrawler {
     private static final Logger log = LoggerFactory.getLogger(NoticeCrawler.class);
     private static final int TIMEOUT_MILLIS = (int) Duration.ofSeconds(5).toMillis();
-    private static final Pattern DATE_PATTERN = Pattern.compile("(\\d{4})[.\\-/](\\d{1,2})[.\\-/](\\d{1,2})");
     private static final List<CrawlTarget> NOTICE_TARGETS = List.of(
             new CrawlTarget("학사공지", "https://www.syu.ac.kr/academic/academic-notice/"),
             new CrawlTarget("행사공지", "https://www.syu.ac.kr/university-square/notice/event/"),
@@ -66,7 +63,7 @@ public class NoticeCrawler {
     }
 
     // 전달받은 목록 URL을 요청하고 공지 항목 목록으로 파싱합니다.
-    public List<Notice> crawl(String listUrl, String category) {
+    private List<Notice> crawl(String listUrl, String category) {
         long startedAt = System.nanoTime();
         log.info("공지 크롤링 시작: category={}, url={}", category, listUrl);
         try {
@@ -120,17 +117,18 @@ public class NoticeCrawler {
 
         String inlineCategory = text(link.selectFirst("span.md_cate"));
         String title = cleanTitle(text(link.selectFirst("span.tit")), inlineCategory, link.text());
-        String author = row == null ? "" : text(row.selectFirst("td.step3"));
-        LocalDate publishedDate = row == null ? null : parseDate(row.text());
+        String department = row == null ? "" : text(row.selectFirst("td.step3"));
 
         return new Notice(
-                extractId(url),
+                null,
                 title,
-                category,
-                author,
-                publishedDate,
                 url,
-                category
+                "",
+                department,
+                toKeyword(category),
+                null,
+                false,
+                extractId(url)
         );
     }
 
@@ -145,20 +143,6 @@ public class NoticeCrawler {
         }
 
         return normalizedTitle.replaceFirst("\\s+NEW$", "");
-    }
-
-    // 문자열에 포함된 날짜를 LocalDate로 변환합니다.
-    private LocalDate parseDate(String value) {
-        Matcher matcher = DATE_PATTERN.matcher(value);
-        if (!matcher.find()) {
-            return null;
-        }
-
-        return LocalDate.of(
-                Integer.parseInt(matcher.group(1)),
-                Integer.parseInt(matcher.group(2)),
-                Integer.parseInt(matcher.group(3))
-        );
     }
 
     // URL에서 쿼리 문자열과 fragment를 제거한 표준 URL을 만듭니다.
@@ -185,6 +169,20 @@ public class NoticeCrawler {
         }
 
         return Integer.toHexString(url.hashCode());
+    }
+
+    // 크롤링한 게시판명을 저장용 키워드 값으로 변환합니다.
+    private String toKeyword(String category) {
+        return switch (category) {
+            case "학사공지", "학사" -> "학사";
+            case "행사공지", "행사" -> "행사";
+            case "생활공지", "생활" -> "생활";
+            case "취업·창업공지", "취업창업공지", "취창업" -> "취창업";
+            case "외부공지", "외부" -> "외부";
+            case "추천채용" -> "추천채용";
+            case "채용공고" -> "채용공고";
+            default -> category;
+        };
     }
 
     // 요소의 텍스트를 안전하게 읽고 공백을 정리합니다.

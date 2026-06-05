@@ -54,6 +54,8 @@ public class NoticeEntity {
             String content,
             String department,
             String keyword,
+            LocalDateTime crawledAt,
+            boolean processed,
             String originNoticeId
     ) {
         this.title = title;
@@ -61,8 +63,9 @@ public class NoticeEntity {
         this.content = content;
         this.department = department;
         this.keyword = keyword;
+        this.crawledAt = crawledAt;
         this.originNoticeId = originNoticeId;
-        this.processed = false;
+        this.processed = processed;
     }
 
     // 크롤링된 Notice DTO를 공지 엔티티로 변환합니다.
@@ -70,23 +73,27 @@ public class NoticeEntity {
         return new NoticeEntity(
                 notice.title(),
                 notice.url(),
-                "",
-                resolveDepartment(notice),
-                resolveKeyword(notice),
-                notice.id()
+                notice.content(),
+                notice.department(),
+                notice.keyword(),
+                notice.crawledAt(),
+                notice.processed(),
+                notice.originNoticeId()
         );
     }
 
     // 저장된 공지 엔티티를 API 응답용 Notice DTO로 변환합니다.
     public Notice toDto() {
         return new Notice(
-                originNoticeId,
+                noticeId,
                 title,
-                keyword,
-                department,
-                null,
                 url,
-                keyword
+                content,
+                department,
+                keyword,
+                crawledAt,
+                processed,
+                originNoticeId
         );
     }
 
@@ -96,47 +103,6 @@ public class NoticeEntity {
         if (crawledAt == null) {
             crawledAt = LocalDateTime.now();
         }
-    }
-
-    // 크롤링 결과에서 부서명을 우선순위에 따라 결정합니다.
-    private static String resolveDepartment(Notice notice) {
-        if (notice.author() != null && !notice.author().isBlank()) {
-            return notice.author();
-        }
-
-        if (notice.category() != null && !notice.category().isBlank()) {
-            return notice.category();
-        }
-
-        return "";
-    }
-
-    // 크롤링한 게시판명을 저장용 키워드 값으로 변환합니다.
-    private static String resolveKeyword(Notice notice) {
-        String boardName = firstPresent(notice.category(), notice.source());
-        return switch (boardName) {
-            case "학사공지", "학사" -> "학사";
-            case "행사공지", "행사" -> "행사";
-            case "생활공지", "생활" -> "생활";
-            case "취업·창업공지", "취업창업공지", "취창업" -> "취창업";
-            case "외부공지", "외부" -> "외부";
-            case "추천채용" -> "추천채용";
-            case "채용공고" -> "채용공고";
-            default -> boardName;
-        };
-    }
-
-    // 전달받은 문자열 중 비어 있지 않은 첫 번째 값을 반환합니다.
-    private static String firstPresent(String first, String second) {
-        if (first != null && !first.isBlank()) {
-            return first;
-        }
-
-        if (second != null && !second.isBlank()) {
-            return second;
-        }
-
-        return "";
     }
 
     // 공지사항 번호를 반환합니다.

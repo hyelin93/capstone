@@ -3,40 +3,53 @@ package com.example.demo.entity;
 import com.example.demo.dto.Notice;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.util.Map;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NoticeEntityTest {
     @Test
-    // 크롤링한 게시판명을 저장용 키워드 값으로 변환하는지 검증합니다.
-    void mapsBoardNamesToKeywords() {
-        Map<String, String> expectedKeywords = Map.of(
-                "학사공지", "학사",
-                "행사공지", "행사",
-                "생활공지", "생활",
-                "취업·창업공지", "취창업",
-                "외부공지", "외부",
-                "추천채용", "추천채용",
-                "채용공고", "채용공고"
-        );
+    // Notice DTO의 필드를 공지 엔티티로 복사하는지 검증합니다.
+    void copiesNoticeDtoFields() {
+        Notice notice = notice();
 
-        expectedKeywords.forEach((boardName, keyword) ->
-                assertThat(NoticeEntity.from(notice(boardName)).getKeyword()).isEqualTo(keyword)
-        );
+        NoticeEntity entity = NoticeEntity.from(notice);
+
+        assertThat(entity)
+                .extracting(
+                        NoticeEntity::getTitle,
+                        NoticeEntity::getUrl,
+                        NoticeEntity::getContent,
+                        NoticeEntity::getDepartment,
+                        NoticeEntity::getKeyword,
+                        NoticeEntity::getCrawledAt,
+                        NoticeEntity::isProcessed,
+                        NoticeEntity::getOriginNoticeId
+                )
+                .containsExactly(
+                        "공지 제목",
+                        "https://www.syu.ac.kr/blog/test-notice/",
+                        "공지 본문",
+                        "담당 부서",
+                        "학사",
+                        LocalDateTime.of(2026, 6, 3, 12, 0),
+                        false,
+                        "test-notice"
+                );
     }
 
-    // 테스트에서 사용할 게시판별 공지 DTO를 생성합니다.
-    private Notice notice(String boardName) {
+    // 테스트에서 사용할 공지 DTO를 생성합니다.
+    private Notice notice() {
         return new Notice(
-                boardName,
+                null,
                 "공지 제목",
-                boardName,
+                "https://www.syu.ac.kr/blog/test-notice/",
+                "공지 본문",
                 "담당 부서",
-                LocalDate.of(2026, 6, 3),
-                "https://www.syu.ac.kr/blog/" + boardName + "/",
-                boardName
+                "학사",
+                LocalDateTime.of(2026, 6, 3, 12, 0),
+                false,
+                "test-notice"
         );
     }
 }

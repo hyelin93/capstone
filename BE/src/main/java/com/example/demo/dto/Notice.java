@@ -1,14 +1,16 @@
 package com.example.demo.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record Notice(
-        String id,
+        Integer noticeId,
         String title,
-        String category,
-        String author,
-        LocalDate publishedDate,
         String url,
-        String source
+        String content,
+        String department,
+        String keyword,
+        LocalDateTime crawledAt,
+        boolean processed,
+        String originNoticeId
 ) {
 }

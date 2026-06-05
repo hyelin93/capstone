@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -68,13 +67,15 @@ class NoticeServiceTest {
     // 테스트에서 사용할 공지 DTO를 생성합니다.
     private Notice notice(String id, String title, String url) {
         return new Notice(
-                id,
+                null,
                 title,
-                "학사공지",
-                "학사지원팀",
-                LocalDate.of(2026, 6, 1),
                 url,
-                "학사공지"
+                "",
+                "학사지원팀",
+                "학사",
+                null,
+                false,
+                id
         );
     }
 }
