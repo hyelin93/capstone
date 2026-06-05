@@ -21,6 +21,8 @@
 
 `NoticeCrawler`가 삼육대학교 공지 목록 페이지를 요청하고 HTML을 파싱합니다.
 
+게시판별 크롤링은 최대 3회 재시도합니다. 한 게시판이 최종 실패해도 전체 크롤링을 중단하지 않고, 실패한 게시판을 제외한 나머지 게시판 결과를 계속 처리합니다. 실패 게시판 목록과 성공/실패 건수는 로그로 남깁니다.
+
 현재 대상 게시판:
 
 - 학사공지
@@ -71,13 +73,15 @@ GET /notices
 ```json
 [
   {
-    "id": "12345",
+    "noticeId": 1,
     "title": "공지 제목",
-    "category": "학사",
-    "author": "학사지원팀",
-    "publishedDate": null,
     "url": "https://www.syu.ac.kr/...",
-    "source": "학사"
+    "content": "",
+    "department": "학사지원팀",
+    "keyword": "학사",
+    "crawledAt": "2026-06-05T23:00:00",
+    "processed": false,
+    "originNoticeId": "12345"
   }
 ]
 ```
@@ -220,9 +224,13 @@ BE/
 
 - `NoticeCrawler`
   - 삼육대학교 공지 목록 HTML을 요청하고 `Notice` DTO로 변환합니다.
+  - 게시판별 최대 3회 재시도하고, 최종 실패한 게시판은 로그에 남긴 뒤 제외합니다.
+  - 부분 실패가 있어도 성공한 게시판의 공지는 저장 흐름으로 전달합니다.
 
 - `Notice`
   - 크롤링 결과와 API 응답에 사용하는 공지 DTO입니다.
+  - `NoticeEntity`와 같은 필드 구조를 사용합니다.
+  - 필드는 `noticeId`, `title`, `url`, `content`, `department`, `keyword`, `crawledAt`, `processed`, `originNoticeId`입니다.
 
 - `NoticeEntity`
   - DB에 저장되는 공지 JPA 엔티티입니다.
@@ -277,6 +285,6 @@ cd BE
 
 - 크롤링 대상 URL을 변경할 때는 `docs/syu-crawl-targets.md`도 함께 갱신합니다.
 - 학교 홈페이지 HTML 구조가 바뀌면 `NoticeCrawler.parseNoticeList(...)`와 selector를 먼저 확인합니다.
-- 크롤링 실패는 `IllegalStateException`으로 전파됩니다. API 오류 응답 정책은 통합 단계에서 공통 예외 처리와 함께 정리하는 것이 좋습니다.
+- 게시판별 크롤링은 최대 3회 재시도하며, 최종 실패한 게시판은 제외하고 나머지 게시판 결과를 저장합니다. 전체 실패/부분 실패 기준을 바꾸려면 `NoticeCrawler.crawlNoticeBoards()`의 실패 처리 정책을 함께 조정해야 합니다.
 - 신규 공지 판단 기준은 URL입니다. URL 정규화 로직을 변경하면 중복 저장 정책이 달라질 수 있습니다.
 - 사용자/키워드/알림 파트는 크롤러 내부 구현에 직접 의존하기보다 `NoticeRepository` 또는 별도 service API를 통해 저장된 공지를 조회하는 방식으로 통합합니다.
