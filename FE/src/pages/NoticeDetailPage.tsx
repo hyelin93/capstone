@@ -1,21 +1,32 @@
 import { Link, useParams } from 'react-router-dom'
+import { useNotice } from '../features/notices/queries'
 
 function NoticeDetailPage() {
   const { noticeId } = useParams()
+  const id = Number(noticeId)
+  const { data: notice, isLoading, isError } = useNotice(id)
 
   return (
     <main className="phone-page">
       <article className="screen detail-screen">
         <Link className="back-link" to="/notices">&lt; 뒤로</Link>
-        <h1>제목제목제목제목</h1>
-        <div className="detail-meta">
-          <strong>글쓴부서/분류명/작성자</strong>
-          <time>2026.XX.XX</time>
-        </div>
-        <p className="detail-body">
-          내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용공지내용
-        </p>
-        <Link className="button button-dark" to={`/notices/${noticeId ?? '1'}`}>저장하기</Link>
+        {isLoading && <p className="list-status">불러오는 중...</p>}
+        {isError && <p className="list-status">공지를 불러오지 못했습니다.</p>}
+        {notice && (
+          <>
+            <h1>{notice.title}</h1>
+            <div className="detail-meta">
+              <strong>{notice.category}</strong>
+              <time>{notice.date}</time>
+            </div>
+            <a className="detail-body" href={notice.link} target="_blank" rel="noreferrer">
+              {notice.link}
+            </a>
+            <a className="button button-dark" href={notice.link} target="_blank" rel="noreferrer">
+              원문 보기
+            </a>
+          </>
+        )}
       </article>
     </main>
   )

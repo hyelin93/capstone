@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from 'react-router-dom'
+import { useNotices } from '../features/notices/queries'
 
 const categories = [
   '전체',
@@ -11,16 +12,15 @@ const categories = [
   '채용공고',
 ]
 
-const notices = Array.from({ length: 10 }, (_, index) => ({
-  id: String(index + 1),
-  title: `학사공지에 있는 글 ${index + 1}`,
-  date: '2026.XX.XX',
-}))
-
 function NoticeMainPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const categoryParam = searchParams.get('category')
   const selectedCategory = categoryParam && categories.includes(categoryParam) ? categoryParam : categories[0]
+
+  // '전체' 선택 시 category 필터 없이 전체 조회
+  const { data: notices, isLoading, isError } = useNotices(
+    selectedCategory === '전체' ? undefined : selectedCategory,
+  )
 
   return (
     <main className="phone-page">
@@ -44,11 +44,16 @@ function NoticeMainPage() {
             ))}
           </select>
         </label>
+        {isLoading && <p className="list-status">불러오는 중...</p>}
+        {isError && <p className="list-status">공지를 불러오지 못했습니다.</p>}
+        {!isLoading && !isError && notices?.length === 0 && (
+          <p className="list-status">공지가 없습니다.</p>
+        )}
         <ul className="notice-list">
-          {notices.map((notice) => (
+          {notices?.map((notice) => (
             <li key={notice.id}>
               <Link className="notice-row" to={`/notices/${notice.id}`}>
-                <span>{selectedCategory}에 있는 글</span>
+                <span>{notice.title}</span>
                 <time>{notice.date}</time>
               </Link>
             </li>
