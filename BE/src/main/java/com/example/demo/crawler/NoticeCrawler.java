@@ -1,8 +1,6 @@
 package com.example.demo.crawler;
 
 import com.example.demo.dto.Notice;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,7 +19,6 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class NoticeCrawler {
     private static final int TIMEOUT_MILLIS = (int) Duration.ofSeconds(5).toMillis();
     private static final int MAX_CRAWL_ATTEMPTS = 3;
@@ -38,9 +35,13 @@ public class NoticeCrawler {
     private final List<CrawlTarget> noticeTargets;
     private final NoticeDocumentFetcher documentFetcher;
 
-    // 기본 크롤링 대상과 Jsoup 요청 함수를 사용해 크롤러를 생성합니다.
     public NoticeCrawler() {
         this(NOTICE_TARGETS, NoticeCrawler::fetchDocument);
+    }
+
+    NoticeCrawler(List<CrawlTarget> noticeTargets, NoticeDocumentFetcher documentFetcher) {
+        this.noticeTargets = noticeTargets;
+        this.documentFetcher = documentFetcher;
     }
 
     record CrawlTarget(String category, String url) {
@@ -48,11 +49,9 @@ public class NoticeCrawler {
 
     @FunctionalInterface
     interface NoticeDocumentFetcher {
-        // 전달받은 목록 URL의 HTML 문서를 가져옵니다.
         Document fetch(String listUrl) throws IOException;
     }
 
-    // 문서에 정의된 공지 게시판들의 첫 페이지에서 공지 데이터를 크롤링합니다.
     public List<Notice> crawlNoticeBoards() {
         long startedAt = System.nanoTime();
         int crawledCount = 0;
@@ -105,7 +104,6 @@ public class NoticeCrawler {
         return uniqueNotices;
     }
 
-    // 전달받은 목록 URL을 요청하고 공지 항목 목록으로 파싱합니다.
     private List<Notice> crawl(String listUrl, String category) {
         long startedAt = System.nanoTime();
         IOException lastException = null;
@@ -156,7 +154,6 @@ public class NoticeCrawler {
         throw new IllegalStateException("공지 목록을 가져오지 못했습니다: " + listUrl, lastException);
     }
 
-    // Jsoup으로 전달받은 목록 URL의 HTML 문서를 요청합니다.
     private static Document fetchDocument(String listUrl) throws IOException {
         return Jsoup.connect(listUrl)
                 .userAgent("Mozilla/5.0 (compatible; SYU-Capstone-NoticeCrawler/1.0)")
@@ -164,7 +161,6 @@ public class NoticeCrawler {
                 .get();
     }
 
-    // HTML 문서에서 공지 링크 행을 찾아 중복 없는 공지 목록으로 변환합니다.
     List<Notice> parseNoticeList(Document document, String category) {
         Map<String, Notice> noticesByUrl = new LinkedHashMap<>();
         for (Element link : document.select("td.step2 a.itembx[href], a.itembx[href]:has(span.tit), table a[href]:has(span.tit)")) {
@@ -177,7 +173,6 @@ public class NoticeCrawler {
         return new ArrayList<>(noticesByUrl.values());
     }
 
-    // 공지 링크 요소와 행 정보를 Notice DTO로 변환합니다.
     private Notice toNotice(Element link, String category) {
         Element row = link.closest("tr");
         String rawUrl = link.absUrl("href");
@@ -203,7 +198,6 @@ public class NoticeCrawler {
         );
     }
 
-    // 제목 문자열에서 불필요한 카테고리와 신규 표시를 제거합니다.
     private String cleanTitle(String title, String category, String fallback) {
         String normalizedTitle = normalize(title);
         if (normalizedTitle.isBlank()) {
@@ -216,7 +210,6 @@ public class NoticeCrawler {
         return normalizedTitle.replaceFirst("\\s+NEW$", "");
     }
 
-    // URL에서 쿼리 문자열과 fragment를 제거한 표준 URL을 만듭니다.
     private String canonicalize(String url) {
         try {
             URI uri = URI.create(url);
@@ -226,7 +219,6 @@ public class NoticeCrawler {
         }
     }
 
-    // 공지 URL의 마지막 경로 조각을 식별자로 추출합니다.
     private String extractId(String url) {
         try {
             String path = URI.create(url).getPath();
@@ -242,7 +234,6 @@ public class NoticeCrawler {
         return Integer.toHexString(url.hashCode());
     }
 
-    // 크롤링한 게시판명을 저장용 키워드 값으로 변환합니다.
     private String toKeyword(String category) {
         return switch (category) {
             case "학사공지", "학사" -> "학사";
@@ -256,7 +247,6 @@ public class NoticeCrawler {
         };
     }
 
-    // 요소의 텍스트를 안전하게 읽고 공백을 정리합니다.
     private String text(Element element) {
         if (element == null) {
             return "";
@@ -265,7 +255,6 @@ public class NoticeCrawler {
         return normalize(element.text());
     }
 
-    // 문자열의 연속 공백을 하나로 줄이고 앞뒤 공백을 제거합니다.
     private String normalize(String value) {
         if (value == null) {
             return "";
@@ -274,7 +263,6 @@ public class NoticeCrawler {
         return value.replaceAll("\\s+", " ").trim();
     }
 
-    // 시작 시각부터 현재까지 걸린 시간을 밀리초 단위로 계산합니다.
     private long elapsedMillis(long startedAt) {
         return Duration.ofNanos(System.nanoTime() - startedAt).toMillis();
     }

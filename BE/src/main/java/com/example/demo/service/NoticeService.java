@@ -6,8 +6,10 @@ import com.example.demo.entity.NoticeEntity;
 import com.example.demo.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -24,25 +27,73 @@ public class NoticeService {
     private final NoticeCrawler noticeCrawler;
     private final NoticeRepository noticeRepository;
 
-    // 최신 공지 게시판 목록을 크롤링한 뒤 신규 공지만 DB에 저장하고 저장된 목록을 반환합니다.
     @Transactional
     public List<Notice> getLatestNotices() {
         crawlAndSaveLatestNotices();
-
-        return noticeRepository.findAllByOrderByCrawledAtDescNoticeIdDesc()
-                .stream()
-                .map(NoticeEntity::toDto)
-                .toList();
+        return findSavedNotices();
     }
 
-    // 최신 공지 게시판 목록을 크롤링한 뒤 신규 공지만 DB에 저장합니다.
+    @Transactional
+    public List<Notice> getNotices(String category, String keyword, Integer page, Integer size) {
+        crawlAndSaveLatestNotices();
+
+        Stream<Notice> notices = findSavedNotices().stream()
+                .filter(notice -> matchesCategory(notice, category))
+                .filter(notice -> matchesKeyword(notice, keyword));
+
+        if (page != null && size != null && size > 0) {
+            notices = notices
+                    .skip((long) Math.max(page, 0) * size)
+                    .limit(size);
+        }
+
+        return notices.toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Notice getNoticeDetail(Integer id) {
+        return noticeRepository.findById(id)
+                .map(NoticeEntity::toDto)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."));
+    }
+
     @Transactional
     public void crawlAndSaveLatestNotices() {
         List<Notice> crawledNotices = noticeCrawler.crawlNoticeBoards();
         saveNewNotices(crawledNotices);
     }
 
-    // 크롤링된 공지 중 아직 저장되지 않은 신규 공지만 DB에 저장합니다.
+    private List<Notice> findSavedNotices() {
+        return noticeRepository.findAllByOrderByCrawledAtDescNoticeIdDesc()
+                .stream()
+                .map(NoticeEntity::toDto)
+                .toList();
+    }
+
+    private boolean matchesCategory(Notice notice, String category) {
+        if (category == null || category.isBlank() || "전체".equals(category)) {
+            return true;
+        }
+
+        return category.equals(notice.keyword());
+    }
+
+    private boolean matchesKeyword(Notice notice, String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return true;
+        }
+
+        String normalizedKeyword = keyword.trim();
+        return contains(notice.title(), normalizedKeyword)
+                || contains(notice.content(), normalizedKeyword)
+                || contains(notice.department(), normalizedKeyword)
+                || contains(notice.keyword(), normalizedKeyword);
+    }
+
+    private boolean contains(String value, String keyword) {
+        return value != null && value.contains(keyword);
+    }
+
     private void saveNewNotices(List<Notice> crawledNotices) {
         long startedAt = System.nanoTime();
         log.info("공지 DB 저장 시작: crawledCount={}", crawledNotices.size());
@@ -97,7 +148,6 @@ public class NoticeService {
         }
     }
 
-    // 시작 시각부터 현재까지 걸린 시간을 밀리초 단위로 계산합니다.
     private long elapsedMillis(long startedAt) {
         return Duration.ofNanos(System.nanoTime() - startedAt).toMillis();
     }

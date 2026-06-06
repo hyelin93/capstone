@@ -18,7 +18,6 @@ public class NoticeCrawlScheduler {
     private final NoticeService noticeService;
 
     @Scheduled(cron = HOURLY_CRON, zone = SCHEDULE_ZONE)
-    // 매시 정각마다 공지 크롤링과 신규 공지 저장을 실행합니다.
     public void crawlNoticesHourly() {
         long startedAt = System.nanoTime();
         log.info("정기 공지 크롤링 시작: cron={}, zone={}", HOURLY_CRON, SCHEDULE_ZONE);
@@ -32,7 +31,6 @@ public class NoticeCrawlScheduler {
         }
     }
 
-    // 시작 시각부터 현재까지 걸린 시간을 밀리초 단위로 계산합니다.
     private long elapsedMillis(long startedAt) {
         return Duration.ofNanos(System.nanoTime() - startedAt).toMillis();
     }

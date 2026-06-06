@@ -48,7 +48,6 @@ public class NoticeEntity {
     @Column(name = "origin_notice_id", nullable = false, length = 50)
     private String originNoticeId;
 
-    // 크롤링된 공지 정보를 엔티티 필드에 초기화합니다.
     private NoticeEntity(
             String title,
             String url,
@@ -69,7 +68,6 @@ public class NoticeEntity {
         this.processed = processed;
     }
 
-    // 크롤링된 Notice DTO를 공지 엔티티로 변환합니다.
     public static NoticeEntity from(Notice notice) {
         return new NoticeEntity(
                 notice.title(),
@@ -83,7 +81,6 @@ public class NoticeEntity {
         );
     }
 
-    // 저장된 공지 엔티티를 API 응답용 Notice DTO로 변환합니다.
     public Notice toDto() {
         return new Notice(
                 noticeId,
@@ -99,7 +96,6 @@ public class NoticeEntity {
     }
 
     @PrePersist
-    // 저장 직전에 크롤링 시각을 기본값으로 설정합니다.
     void onCreate() {
         if (crawledAt == null) {
             crawledAt = LocalDateTime.now();
