@@ -1,11 +1,12 @@
 package com.example.demo.crawler;
 
 import com.example.demo.dto.Notice;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,9 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class NoticeCrawler {
-    private static final Logger log = LoggerFactory.getLogger(NoticeCrawler.class);
     private static final int TIMEOUT_MILLIS = (int) Duration.ofSeconds(5).toMillis();
     private static final int MAX_CRAWL_ATTEMPTS = 3;
     private static final List<CrawlTarget> NOTICE_TARGETS = List.of(
@@ -39,12 +41,6 @@ public class NoticeCrawler {
     // 기본 크롤링 대상과 Jsoup 요청 함수를 사용해 크롤러를 생성합니다.
     public NoticeCrawler() {
         this(NOTICE_TARGETS, NoticeCrawler::fetchDocument);
-    }
-
-    // 테스트에서 크롤링 대상과 문서 요청 함수를 주입할 수 있게 크롤러를 생성합니다.
-    NoticeCrawler(List<CrawlTarget> noticeTargets, NoticeDocumentFetcher documentFetcher) {
-        this.noticeTargets = noticeTargets;
-        this.documentFetcher = documentFetcher;
     }
 
     record CrawlTarget(String category, String url) {

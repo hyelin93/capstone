@@ -4,8 +4,8 @@ import com.example.demo.crawler.NoticeCrawler;
 import com.example.demo.dto.Notice;
 import com.example.demo.entity.NoticeEntity;
 import com.example.demo.repository.NoticeRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,17 +17,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class NoticeService {
-    private static final Logger log = LoggerFactory.getLogger(NoticeService.class);
     private final NoticeCrawler noticeCrawler;
     private final NoticeRepository noticeRepository;
-
-    // 공지 서비스에서 사용할 크롤러 의존성을 주입받습니다.
-    public NoticeService(NoticeCrawler noticeCrawler, NoticeRepository noticeRepository) {
-        this.noticeCrawler = noticeCrawler;
-        this.noticeRepository = noticeRepository;
-    }
 
     // 최신 공지 게시판 목록을 크롤링한 뒤 신규 공지만 DB에 저장하고 저장된 목록을 반환합니다.
     @Transactional

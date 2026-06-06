@@ -8,11 +8,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Entity
 @Table(name = "notice")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NoticeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,10 +47,6 @@ public class NoticeEntity {
 
     @Column(name = "origin_notice_id", nullable = false, length = 50)
     private String originNoticeId;
-
-    // JPA가 공지 엔티티를 생성할 때 사용하는 기본 생성자입니다.
-    protected NoticeEntity() {
-    }
 
     // 크롤링된 공지 정보를 엔티티 필드에 초기화합니다.
     private NoticeEntity(
@@ -103,50 +104,5 @@ public class NoticeEntity {
         if (crawledAt == null) {
             crawledAt = LocalDateTime.now();
         }
-    }
-
-    // 공지사항 번호를 반환합니다.
-    public Integer getNoticeId() {
-        return noticeId;
-    }
-
-    // 공지 제목을 반환합니다.
-    public String getTitle() {
-        return title;
-    }
-
-    // 공지 링크를 반환합니다.
-    public String getUrl() {
-        return url;
-    }
-
-    // 공지 본문을 반환합니다.
-    public String getContent() {
-        return content;
-    }
-
-    // 공지 담당 부서를 반환합니다.
-    public String getDepartment() {
-        return department;
-    }
-
-    // 공지가 속한 게시판 기반 키워드를 반환합니다.
-    public String getKeyword() {
-        return keyword;
-    }
-
-    // 공지를 크롤링한 시각을 반환합니다.
-    public LocalDateTime getCrawledAt() {
-        return crawledAt;
-    }
-
-    // 알림 처리 여부를 반환합니다.
-    public boolean isProcessed() {
-        return processed;
-    }
-
-    // 학교 홈페이지의 원본 공지 번호를 반환합니다.
-    public String getOriginNoticeId() {
-        return originNoticeId;
     }
 }
