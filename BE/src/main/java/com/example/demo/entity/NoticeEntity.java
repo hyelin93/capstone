@@ -6,8 +6,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(name = "notice")
+@Table(
+        name = "notice",
+        uniqueConstraints = @UniqueConstraint(name = "uk_notice_url", columnNames = "url"),
+        indexes = @Index(name = "idx_notice_crawled_at_notice_id", columnList = "crawled_at, notice_id")
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NoticeEntity {
     @Id
