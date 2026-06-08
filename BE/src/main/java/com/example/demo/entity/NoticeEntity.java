@@ -1,6 +1,5 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.Notice;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -74,22 +73,17 @@ public class NoticeEntity {
         this.processed = processed;
     }
 
-    public static NoticeEntity from(Notice notice) {
+    public static NoticeEntity create(
+            String title,
+            String url,
+            String content,
+            String department,
+            String keyword,
+            LocalDateTime crawledAt,
+            boolean processed,
+            String originNoticeId
+    ) {
         return new NoticeEntity(
-                notice.title(),
-                notice.url(),
-                notice.content(),
-                notice.department(),
-                notice.keyword(),
-                notice.crawledAt(),
-                notice.processed(),
-                notice.originNoticeId()
-        );
-    }
-
-    public Notice toDto() {
-        return new Notice(
-                noticeId,
                 title,
                 url,
                 content,

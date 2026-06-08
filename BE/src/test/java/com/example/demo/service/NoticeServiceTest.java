@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.adapter.NoticeAdapter;
 import com.example.demo.crawler.NoticeCrawler;
 import com.example.demo.dto.Notice;
 import com.example.demo.entity.NoticeEntity;
@@ -23,7 +24,8 @@ import static org.mockito.Mockito.when;
 class NoticeServiceTest {
     private final NoticeCrawler noticeCrawler = mock(NoticeCrawler.class);
     private final NoticeRepository noticeRepository = mock(NoticeRepository.class);
-    private final NoticeService noticeService = new NoticeService(noticeCrawler, noticeRepository);
+    private final NoticeAdapter noticeAdapter = new NoticeAdapter();
+    private final NoticeService noticeService = new NoticeService(noticeCrawler, noticeRepository, noticeAdapter);
 
     @Test
     @SuppressWarnings("unchecked")
@@ -34,7 +36,7 @@ class NoticeServiceTest {
         when(noticeCrawler.crawlNoticeBoards()).thenReturn(List.of(alreadyRegistered, newNotice));
         when(noticeRepository.findExistingUrls(anyCollection())).thenReturn(Set.of(alreadyRegistered.url()));
         when(noticeRepository.findAllByOrderByCrawledAtDescNoticeIdDesc())
-                .thenReturn(List.of(NoticeEntity.from(newNotice), NoticeEntity.from(alreadyRegistered)));
+                .thenReturn(List.of(noticeAdapter.toEntity(newNotice), noticeAdapter.toEntity(alreadyRegistered)));
 
         List<Notice> notices = noticeService.getLatestNotices();
 
@@ -54,7 +56,7 @@ class NoticeServiceTest {
         when(noticeCrawler.crawlNoticeBoards()).thenReturn(List.of(alreadyRegistered));
         when(noticeRepository.findExistingUrls(anyCollection())).thenReturn(Set.of(alreadyRegistered.url()));
         when(noticeRepository.findAllByOrderByCrawledAtDescNoticeIdDesc())
-                .thenReturn(List.of(NoticeEntity.from(alreadyRegistered)));
+                .thenReturn(List.of(noticeAdapter.toEntity(alreadyRegistered)));
 
         List<Notice> notices = noticeService.getLatestNotices();
 
