@@ -1,13 +1,14 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.Notice;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(name = "notice")
+@Table(
+        name = "notice",
+        uniqueConstraints = @UniqueConstraint(name = "uk_notice_url", columnNames = "url"),
+        indexes = @Index(name = "idx_notice_crawled_at_notice_id", columnList = "crawled_at, notice_id")
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NoticeEntity {
     @Id
@@ -68,22 +73,17 @@ public class NoticeEntity {
         this.processed = processed;
     }
 
-    public static NoticeEntity from(Notice notice) {
+    public static NoticeEntity create(
+            String title,
+            String url,
+            String content,
+            String department,
+            String keyword,
+            LocalDateTime crawledAt,
+            boolean processed,
+            String originNoticeId
+    ) {
         return new NoticeEntity(
-                notice.title(),
-                notice.url(),
-                notice.content(),
-                notice.department(),
-                notice.keyword(),
-                notice.crawledAt(),
-                notice.processed(),
-                notice.originNoticeId()
-        );
-    }
-
-    public Notice toDto() {
-        return new Notice(
-                noticeId,
                 title,
                 url,
                 content,

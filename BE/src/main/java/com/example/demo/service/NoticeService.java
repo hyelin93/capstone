@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.adapter.NoticeAdapter;
 import com.example.demo.crawler.NoticeCrawler;
 import com.example.demo.dto.Notice;
 import com.example.demo.entity.NoticeEntity;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 public class NoticeService {
     private final NoticeCrawler noticeCrawler;
     private final NoticeRepository noticeRepository;
+    private final NoticeAdapter noticeAdapter;
 
     @Transactional
     public List<Notice> getLatestNotices() {
@@ -53,7 +55,7 @@ public class NoticeService {
     @Transactional(readOnly = true)
     public Notice getNoticeDetail(Integer id) {
         return noticeRepository.findById(id)
-                .map(NoticeEntity::toDto)
+                .map(noticeAdapter::toDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."));
     }
 
@@ -66,7 +68,7 @@ public class NoticeService {
     private List<Notice> findSavedNotices() {
         return noticeRepository.findAllByOrderByCrawledAtDescNoticeIdDesc()
                 .stream()
-                .map(NoticeEntity::toDto)
+                .map(noticeAdapter::toDto)
                 .toList();
     }
 
@@ -125,7 +127,7 @@ public class NoticeService {
                     continue;
                 }
 
-                newNoticesByUrl.putIfAbsent(notice.url(), NoticeEntity.from(notice));
+                newNoticesByUrl.putIfAbsent(notice.url(), noticeAdapter.toEntity(notice));
             }
 
             if (!newNoticesByUrl.isEmpty()) {
