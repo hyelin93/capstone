@@ -198,9 +198,16 @@ a {
   padding: 0;
   display: grid;
   gap: 10px;
+  min-width: 0;
+}
+
+.notice-list > li {
+  min-width: 0;
 }
 
 .notice-row {
+  width: 100%;
+  max-width: 100%;
   min-height: 42px;
   display: flex;
   align-items: center;
@@ -210,9 +217,11 @@ a {
   border-radius: 4px;
   background: var(--soft);
   font-size: 11px;
+  overflow: hidden;
 }
 
 .notice-row span {
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
