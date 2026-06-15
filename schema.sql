@@ -31,6 +31,7 @@ CREATE TABLE `Notice` (
 	`category_id` INT NOT NULL,
 	`title` VARCHAR(255) NOT NULL COMMENT '공지 제목',
 	`url` VARCHAR(512) NOT NULL,
+	`content` TEXT COMMENT '공지 본문',
 	`crawled_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`notice_id`),
     CONSTRAINT `FK_Category_TO_Notice` FOREIGN KEY (`category_id`) REFERENCES `Category` (`category_id`) ON DELETE CASCADE,

@@ -116,6 +116,60 @@ class NoticeCrawlerTest {
     }
 
     @Test
+    // 공지 상세 페이지의 본문을 content 필드에 채우는지 검증합니다.
+    void fetchesNoticeContentFromDetailPage() {
+        String listUrl = "https://www.syu.ac.kr/academic/academic-notice/";
+        String detailUrl = "https://www.syu.ac.kr/blog/detail-notice/";
+        Map<String, Document> documentsByUrl = Map.of(
+                listUrl, noticeDocument("/blog/detail-notice/", "본문 있는 공지", "학사지원팀"),
+                detailUrl, detailDocument("""
+                        <p>첫 번째 본문입니다.</p>
+                        <table>
+                          <tbody>
+                            <tr>
+                              <td>신청 기간</td>
+                              <td>2026.06.01</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        """)
+        );
+        NoticeCrawler contentCrawler = new NoticeCrawler(
+                List.of(new NoticeCrawler.CrawlTarget("학사공지", listUrl)),
+                documentsByUrl::get
+        );
+
+        List<Notice> notices = contentCrawler.crawlNoticeBoards();
+
+        assertThat(notices).hasSize(1);
+        assertThat(notices.get(0).content())
+                .contains("첫 번째 본문입니다.")
+                .contains("신청 기간 2026.06.01");
+    }
+
+    @Test
+    // 상세 페이지 크롤링이 실패해도 공지 자체는 유지하는지 검증합니다.
+    void keepsNoticeWhenDetailContentFetchFails() {
+        String listUrl = "https://www.syu.ac.kr/academic/academic-notice/";
+        NoticeCrawler contentCrawler = new NoticeCrawler(
+                List.of(new NoticeCrawler.CrawlTarget("학사공지", listUrl)),
+                url -> {
+                    if (url.equals(listUrl)) {
+                        return noticeDocument("/blog/detail-notice/", "본문 실패 공지", "학사지원팀");
+                    }
+
+                    throw new IOException("detail failure");
+                }
+        );
+
+        List<Notice> notices = contentCrawler.crawlNoticeBoards();
+
+        assertThat(notices).hasSize(1);
+        assertThat(notices.get(0).title()).isEqualTo("본문 실패 공지");
+        assertThat(notices.get(0).content()).isEmpty();
+    }
+
+    @Test
     // 문서에 정의된 게시판 이름을 저장용 키워드 값으로 변환하는지 검증합니다.
     void mapsBoardNamesToKeywords() {
         assertThat(noticeFromBoard("학사공지").keyword()).isEqualTo("학사");
@@ -203,5 +257,26 @@ class NoticeCrawlerTest {
                 """.formatted(href, title, department);
 
         return Jsoup.parse(html, "https://www.syu.ac.kr/");
+    }
+
+    // 테스트에서 사용할 공지 상세 HTML 문서를 생성합니다.
+    private Document detailDocument(String bodyHtml) {
+        String html = """
+                <article>
+                  <div class="entry-content">
+                    <div class="md_single_headbx">
+                      <h3 class="md_m_tit">상세 제목</h3>
+                      <div class="md_single_share">share</div>
+                    </div>
+                    <div class="single_contbx">
+                      <div class="single_cont">
+                        %s
+                      </div>
+                    </div>
+                  </div>
+                </article>
+                """.formatted(bodyHtml);
+
+        return Jsoup.parse(html, "https://www.syu.ac.kr/blog/detail-notice/");
     }
 }

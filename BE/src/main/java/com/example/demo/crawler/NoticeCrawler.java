@@ -22,6 +22,14 @@ import java.util.regex.Pattern;
 public class NoticeCrawler {
     private static final int TIMEOUT_MILLIS = (int) Duration.ofSeconds(5).toMillis();
     private static final int MAX_CRAWL_ATTEMPTS = 3;
+    private static final String NOTICE_LIST_LINK_SELECTOR =
+            "td.step2 a.itembx[href], a.itembx[href]:has(span.tit), table a[href]:has(span.tit)";
+    private static final List<String> NOTICE_CONTENT_SELECTORS = List.of(
+            ".single_cont",
+            ".single_contbx",
+            "article .entry-content",
+            ".entry-content"
+    );
     private static final List<CrawlTarget> NOTICE_TARGETS = List.of(
             new CrawlTarget("학사공지", "https://www.syu.ac.kr/academic/academic-notice/"),
             new CrawlTarget("행사공지", "https://www.syu.ac.kr/university-square/notice/event/"),
@@ -114,7 +122,10 @@ public class NoticeCrawler {
             try {
                 Document document = documentFetcher.fetch(listUrl);
 
-                List<Notice> notices = parseNoticeList(document, category);
+                List<Notice> notices = parseNoticeList(document, category)
+                        .stream()
+                        .map(this::withFetchedContent)
+                        .toList();
                 log.info(
                         "공지 크롤링 완료: category={}, url={}, attempt={}, count={}, attemptElapsedMs={}, elapsedMs={}",
                         category,
@@ -163,7 +174,7 @@ public class NoticeCrawler {
 
     List<Notice> parseNoticeList(Document document, String category) {
         Map<String, Notice> noticesByUrl = new LinkedHashMap<>();
-        for (Element link : document.select("td.step2 a.itembx[href], a.itembx[href]:has(span.tit), table a[href]:has(span.tit)")) {
+        for (Element link : document.select(NOTICE_LIST_LINK_SELECTOR)) {
             Notice notice = toNotice(link, category);
             if (!notice.title().isBlank() && !notice.url().isBlank()) {
                 noticesByUrl.putIfAbsent(notice.url(), notice);
@@ -171,6 +182,61 @@ public class NoticeCrawler {
         }
 
         return new ArrayList<>(noticesByUrl.values());
+    }
+
+    public String crawlNoticeContent(String noticeUrl) {
+        return fetchNoticeContent(noticeUrl, noticeUrl);
+    }
+
+    private Notice withFetchedContent(Notice notice) {
+        String content = fetchNoticeContent(notice.url(), notice.title());
+        return new Notice(
+                notice.noticeId(),
+                notice.title(),
+                notice.url(),
+                content,
+                notice.department(),
+                notice.keyword(),
+                notice.crawledAt(),
+                notice.processed(),
+                notice.originNoticeId()
+        );
+    }
+
+    private String fetchNoticeContent(String noticeUrl, String title) {
+        try {
+            Document detailDocument = documentFetcher.fetch(noticeUrl);
+            String content = extractNoticeContent(detailDocument);
+            if (content.isBlank()) {
+                log.warn("공지 본문이 비어 있습니다: title={}, url={}", title, noticeUrl);
+            }
+
+            return content;
+        } catch (IOException e) {
+            log.warn("공지 본문 크롤링 실패로 빈 본문을 사용합니다: title={}, url={}", title, noticeUrl, e);
+            return "";
+        }
+    }
+
+    String extractNoticeContent(Document document) {
+        Element content = findNoticeContent(document);
+        if (content == null) {
+            return "";
+        }
+
+        content.select("script, style, noscript, .md_single_headbx, .md_single_share").remove();
+        return text(content);
+    }
+
+    private Element findNoticeContent(Document document) {
+        for (String selector : NOTICE_CONTENT_SELECTORS) {
+            Element content = document.selectFirst(selector);
+            if (content != null) {
+                return content;
+            }
+        }
+
+        return null;
     }
 
     private Notice toNotice(Element link, String category) {

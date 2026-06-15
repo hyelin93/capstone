@@ -95,6 +95,10 @@ public class NoticeEntity {
         );
     }
 
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
     @PrePersist
     void onCreate() {
         if (crawledAt == null) {
