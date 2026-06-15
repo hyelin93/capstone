@@ -49,7 +49,14 @@ export function usePushPermission() {
         return
       }
 
-      await notificationApi.registerPushToken({ token })
+      const username = window.localStorage.getItem('username')
+      if (!username) {
+        setStatus('token-error')
+        return
+      }
+
+      console.log('FCM Token:', token)
+      await notificationApi.registerPushToken({ username, token })
       setStatus('granted')
     } catch {
       setStatus('token-error')
