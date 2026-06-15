@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import { useNotices } from '../features/notices/queries'
+import icon from '../assets/Bell.png'
 
 const categories = [
   { label: '전체', value: '' },
@@ -26,7 +27,7 @@ function NoticeMainPage() {
         <header className="top-bar">
           <h1>{selectedCategory.label}</h1>
           <Link className="icon-button" to="/keywords" aria-label="키워드 알림">
-            ♧
+            <img src={icon} alt="키워드 알림" width="20" />
           </Link>
         </header>
         <label className="category-filter">
