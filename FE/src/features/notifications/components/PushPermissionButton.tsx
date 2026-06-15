@@ -1,13 +1,28 @@
-// 알림 설정 UI 구현
-// 아직 선택 안 함: 알림 설정 버튼 표시
-// 허용됨: 알림알림 설정 완료 표시
-// 거부됨: 브라우저 설정에서 직접 허용해야 한다는 안내
-// 토큰 등록 실패: 다시 시도 버튼 표시
+import { usePushPermission } from '../hooks/usePushPermission'
 
+export function PushPermissionButton() {
+  const { status, requestPermission, isPending } = usePushPermission()
 
-// 프론트 서비스 워커가 기대하는 데이터 형식을 정할 것 
-// {
-//   "title": "새 공지 알림",
-//   "body": "등록한 키워드가 포함된 공지가 올라왔습니다.",
-//   "url": "/academic/academic-notice/124124",
-// }
+  if (status === 'unsupported') {
+    return <p className="form-error">이 브라우저에서는 알림을 사용할 수 없습니다.</p>
+  }
+
+  if (status === 'granted') {
+    return <p className="push-status">알림 설정 완료</p>
+  }
+
+  if (status === 'denied') {
+    return <p className="form-error">브라우저 설정에서 알림을 허용해주세요.</p>
+  }
+
+  return (
+    <button
+      className="button button-dark full-width"
+      type="button"
+      onClick={requestPermission}
+      disabled={isPending}
+    >
+      {isPending ? '알림 설정 중...' : status === 'token-error' ? '알림 다시 설정' : '알림 설정'}
+    </button>
+  )
+}
