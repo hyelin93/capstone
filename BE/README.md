@@ -79,7 +79,7 @@ JDBC URL은 `jdbc:h2:mem:notice-db`를 사용합니다.
 
 ### 공지 크롤링
 
-`NoticeCrawler`는 삼육대학교 공지 목록 HTML을 Jsoup으로 요청하고 `Notice` DTO로 변환합니다.
+`NoticeCrawler`는 삼육대학교 공지 목록 HTML을 Jsoup으로 요청하고, 각 공지 상세 페이지 본문까지 읽어 `Notice` DTO로 변환합니다.
 
 현재 크롤링 대상:
 
@@ -98,6 +98,7 @@ JDBC URL은 `jdbc:h2:mem:notice-db`를 사용합니다.
 - 같은 크롤링 결과 안에서는 URL 기준으로 중복 제거합니다.
 - URL은 쿼리 문자열과 fragment를 제거해 canonicalize합니다.
 - 원본 공지 ID는 URL 마지막 path segment에서 추출합니다.
+- 공지 본문은 상세 페이지의 `.single_cont` 영역을 우선 사용합니다.
 
 크롤링 대상 URL과 페이지네이션 메모는 루트의 `docs/syu-crawl-targets.md`를 참고합니다.
 
@@ -164,7 +165,7 @@ curl 'http://127.0.0.1:8080/notices?category=학사&page=0&size=10'
     "noticeId": 1,
     "title": "공지 제목",
     "url": "https://www.syu.ac.kr/blog/example/",
-    "content": "",
+    "content": "공지 본문 내용",
     "department": "학사지원팀",
     "keyword": "학사",
     "crawledAt": "2026-06-06T17:00:00",

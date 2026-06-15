@@ -52,11 +52,12 @@ public class NoticeService {
         return notices.toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Notice getNoticeDetail(Integer id) {
-        return noticeRepository.findById(id)
-                .map(noticeAdapter::toDto)
+        NoticeEntity entity = noticeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."));
+        fillContentIfMissing(entity);
+        return noticeAdapter.toDto(entity);
     }
 
     @Transactional
@@ -121,6 +122,7 @@ public class NoticeService {
             }
 
             Set<String> existingUrls = noticeRepository.findExistingUrls(crawledUrls);
+            int updatedExistingContentCount = updateMissingContents(crawledNotices, existingUrls);
             Map<String, NoticeEntity> newNoticesByUrl = new LinkedHashMap<>();
             for (Notice notice : crawledNotices) {
                 if (notice.url() == null || notice.url().isBlank() || existingUrls.contains(notice.url())) {
@@ -135,12 +137,13 @@ public class NoticeService {
             }
 
             log.info(
-                    "공지 DB 저장 완료: crawledCount={}, validUrlCount={}, invalidUrlCount={}, duplicateInCrawlCount={}, alreadySavedCount={}, savedCount={}, elapsedMs={}",
+                    "공지 DB 저장 완료: crawledCount={}, validUrlCount={}, invalidUrlCount={}, duplicateInCrawlCount={}, alreadySavedCount={}, updatedExistingContentCount={}, savedCount={}, elapsedMs={}",
                     crawledNotices.size(),
                     validUrlCount,
                     invalidUrlCount,
                     duplicateInCrawlCount,
                     existingUrls.size(),
+                    updatedExistingContentCount,
                     newNoticesByUrl.size(),
                     elapsedMillis(startedAt)
             );
@@ -148,6 +151,46 @@ public class NoticeService {
             log.error("공지 DB 저장 실패: crawledCount={}, elapsedMs={}", crawledNotices.size(), elapsedMillis(startedAt), e);
             throw e;
         }
+    }
+
+    private void fillContentIfMissing(NoticeEntity entity) {
+        if (hasText(entity.getContent())) {
+            return;
+        }
+
+        String content = noticeCrawler.crawlNoticeContent(entity.getUrl());
+        if (hasText(content)) {
+            entity.updateContent(content);
+        }
+    }
+
+    private int updateMissingContents(List<Notice> crawledNotices, Set<String> existingUrls) {
+        Map<String, String> contentsByUrl = crawledNotices.stream()
+                .filter(notice -> notice.url() != null && existingUrls.contains(notice.url()))
+                .filter(notice -> hasText(notice.content()))
+                .collect(Collectors.toMap(
+                        Notice::url,
+                        Notice::content,
+                        (first, ignored) -> first,
+                        LinkedHashMap::new
+                ));
+        if (contentsByUrl.isEmpty()) {
+            return 0;
+        }
+
+        int updatedCount = 0;
+        for (NoticeEntity entity : noticeRepository.findByUrlIn(contentsByUrl.keySet())) {
+            if (!hasText(entity.getContent())) {
+                entity.updateContent(contentsByUrl.get(entity.getUrl()));
+                updatedCount++;
+            }
+        }
+
+        return updatedCount;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     private long elapsedMillis(long startedAt) {

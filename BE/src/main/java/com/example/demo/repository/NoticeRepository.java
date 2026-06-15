@@ -12,6 +12,8 @@ import java.util.Set;
 public interface NoticeRepository extends JpaRepository<NoticeEntity, Integer> {
     List<NoticeEntity> findAllByOrderByCrawledAtDescNoticeIdDesc();
 
+    List<NoticeEntity> findByUrlIn(Collection<String> urls);
+
     @Query("select n.url from NoticeEntity n where n.url in :urls")
     Set<String> findExistingUrls(@Param("urls") Collection<String> urls);
 }

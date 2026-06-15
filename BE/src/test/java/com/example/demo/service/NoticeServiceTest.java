@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,13 +67,69 @@ class NoticeServiceTest {
         assertThat(notices).hasSize(1);
     }
 
+    @Test
+    // 기존 저장 공지의 본문이 비어 있으면 새 크롤링 결과의 본문으로 보강하는지 검증합니다.
+    void fillsBlankContentForAlreadyRegisteredNotice() {
+        Notice crawledNotice = notice(
+                "same",
+                "이미 저장된 공지",
+                "https://www.syu.ac.kr/blog/same/",
+                "새로 크롤링한 본문"
+        );
+        NoticeEntity savedEntity = NoticeEntity.create(
+                crawledNotice.title(),
+                crawledNotice.url(),
+                "",
+                crawledNotice.department(),
+                crawledNotice.keyword(),
+                null,
+                false,
+                crawledNotice.originNoticeId()
+        );
+        when(noticeCrawler.crawlNoticeBoards()).thenReturn(List.of(crawledNotice));
+        when(noticeRepository.findExistingUrls(anyCollection())).thenReturn(Set.of(crawledNotice.url()));
+        when(noticeRepository.findByUrlIn(Set.of(crawledNotice.url()))).thenReturn(List.of(savedEntity));
+        when(noticeRepository.findAllByOrderByCrawledAtDescNoticeIdDesc()).thenReturn(List.of(savedEntity));
+
+        List<Notice> notices = noticeService.getLatestNotices();
+
+        assertThat(savedEntity.getContent()).isEqualTo("새로 크롤링한 본문");
+        assertThat(notices).extracting(Notice::content).containsExactly("새로 크롤링한 본문");
+    }
+
+    @Test
+    // 상세 조회 시 저장된 본문이 비어 있으면 원문 상세 페이지에서 본문을 채워 반환하는지 검증합니다.
+    void fillsBlankContentWhenGettingNoticeDetail() {
+        NoticeEntity savedEntity = NoticeEntity.create(
+                "공지 제목",
+                "https://www.syu.ac.kr/blog/detail/",
+                "",
+                "학사지원팀",
+                "학사",
+                null,
+                false,
+                "detail"
+        );
+        when(noticeRepository.findById(1)).thenReturn(Optional.of(savedEntity));
+        when(noticeCrawler.crawlNoticeContent(savedEntity.getUrl())).thenReturn("상세 본문");
+
+        Notice notice = noticeService.getNoticeDetail(1);
+
+        assertThat(savedEntity.getContent()).isEqualTo("상세 본문");
+        assertThat(notice.content()).isEqualTo("상세 본문");
+    }
+
     // 테스트에서 사용할 공지 DTO를 생성합니다.
     private Notice notice(String id, String title, String url) {
+        return notice(id, title, url, "");
+    }
+
+    private Notice notice(String id, String title, String url, String content) {
         return new Notice(
                 null,
                 title,
                 url,
-                "",
+                content,
                 "학사지원팀",
                 "학사",
                 null,
