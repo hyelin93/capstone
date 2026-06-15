@@ -1,5 +1,11 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, isSupported } from "firebase/messaging";
+import {
+  getMessaging,
+  getToken,
+  isSupported,
+  onMessage,
+  type MessagePayload,
+} from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -34,4 +40,16 @@ export const getFirebaseToken = async (
     vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     serviceWorkerRegistration,
   });
+};
+
+export const subscribeForegroundMessage = async (
+  onReceive: (payload: MessagePayload) => void,
+) => {
+  const messaging = await getFirebaseMessaging();
+
+  if (!messaging) {
+    return null;
+  }
+
+  return onMessage(messaging, onReceive);
 };
