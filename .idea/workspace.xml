@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="57b37c4f-73b0-4864-9011-d656c31833d2" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/config/FirebaseConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/service/FcmService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BE/src/main/resources/static/firebase-messaging-sw.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BE/src/main/resources/templates/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BE/src/test/java/com/example/demo/adapter/NoticeAdapterTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BE/src/test/java/com/example/demo/crawler/NoticeCrawlerTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BE/src/test/java/com/example/demo/entity/NoticeEntityTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BE/src/test/java/com/example/demo/service/NoticeServiceTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BE/src/test/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/public/firebase-messaging-sw.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/auth/api.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/auth/queries.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/auth/types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/keywords/api.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/keywords/queries.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/keywords/types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/notices/api.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/notices/queries.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/notices/types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/notifications/api/notificationApi.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/notifications/components/PushPermissionButton.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/notifications/hooks/usePushPermission.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/features/notifications/services/firebaseMessaging.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FE/src/shared/api/client.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/BE/.gitattributes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/BE/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/BE/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/BE/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/BE/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/BE/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/BE/gradlew" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/BE/gradlew.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/BE/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/DemoApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/DemoApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/adapter/NoticeAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/adapter/NoticeAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/controller/NoticeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/controller/NoticeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/crawler/NoticeCrawler.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/crawler/NoticeCrawler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/dto/LoginRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/dto/LoginRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/dto/Notice.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/dto/Notice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/dto/SignupRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/dto/SignupRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/dto/UserResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/dto/UserResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/entity/Keyword.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/entity/Keyword.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/entity/NoticeEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/entity/NoticeEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/repository/KeywordRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/repository/KeywordRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/repository/NoticeRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/repository/NoticeRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/scheduler/NoticeCrawlScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/scheduler/NoticeCrawlScheduler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/service/NoticeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/service/NoticeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/java/com/example/demo/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BE/src/test/java/com/example/demo/DemoApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/BE/src/test/java/com/example/demo/DemoApplicationTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/.env" beforeDir="false" afterPath="$PROJECT_DIR$/FE/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/FE/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/FE/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/app/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/app/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/app/providers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/app/providers.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/app/router.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/app/router.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/main.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/main.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/pages/KeywordManagePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/pages/KeywordManagePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/pages/KeywordPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/pages/KeywordPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/pages/LoginPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/pages/LoginPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/pages/NotFoundPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/pages/NotFoundPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/pages/NoticeDetailPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/pages/NoticeDetailPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/pages/NoticeMainPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/pages/NoticeMainPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/src/pages/SignupPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/FE/src/pages/SignupPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FE/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/FE/vite.config.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;hyelin93&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/hyelin93/capstone.git&quot;,
+    &quot;accountId&quot;: &quot;334e5a7b-f62e-47ee-b84f-036ada88c3f9&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="3Ec00UmTPUfDCRFA23rbZ1k6d32" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.C:/Users/mirugi/Desktop/software/capstone/BE/build.gradle.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/backend-hyelin 병합 중&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mirugi/Desktop/software/capstone&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="capstone" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="capstone" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="capstone" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Python.FlaskServer">
+      <module name="capstone" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="capstone" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="57b37c4f-73b0-4864-9011-d656c31833d2" name="변경" comment="" />
+      <created>1780462327333</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1780462327333</updated>
+      <workItem from="1780462328523" duration="4420000" />
+      <workItem from="1780490150208" duration="3492000" />
+      <workItem from="1780727480358" duration="3257000" />
+      <workItem from="1780732417424" duration="798000" />
+      <workItem from="1781513469458" duration="7042000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

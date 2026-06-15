@@ -16,4 +16,8 @@ public class Keyword {
     private Long id;
 
     private String word;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FCM TEST</title>
+
+    <!-- 🔥 Firebase SDK (필수) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+
+    <script>
+        // =========================
+        // 1. Firebase 설정
+        // =========================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAPQhBxsF1VfSIVBFX1X6acecy2wi6iG3c",
+            authDomain: "keyword-ae4db.firebaseapp.com",
+            projectId: "keyword-ae4db",
+            storageBucket: "keyword-ae4db.firebasestorage.app",
+            messagingSenderId: "19026335038",
+            appId: "1:19026335038:web:93a69b5fcd86612597486f",
+            measurementId: "G-XBKHVGWE1H"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const messaging = firebase.messaging();
+
+        // =========================
+        // 2. 알림 권한 요청
+        // =========================
+        Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+                console.log("알림 허용됨");
+
+                // =========================
+                // 3. device token 받기
+                // =========================
+                messaging.getToken({
+                    vapidKey: "BO1AlhxAiHgkQZY1RcaPSWRXF88NYBhVFPMhu1lGT4dyb7VwAzuUWCYL9Cr0JYbt0HvS738GnWuxej6Z4QcGfas"
+                }).then((token) => {
+
+                    if (token) {
+                        console.log("🔥 DEVICE TOKEN:", token);
+
+                        // 👉 여기서 Spring으로 보내야 함 (중요)
+                        // fetch("/api/save-token", { method: "POST", body: token });
+
+                    } else {
+                        console.log("토큰 없음");
+                    }
+
+                }).catch((err) => {
+                    console.error("토큰 에러:", err);
+                });
+
+            } else {
+                console.log("알림 거부됨");
+            }
+        });
+
+        // =========================
+        // 4. foreground 알림 수신
+        // =========================
+        messaging.onMessage((payload) => {
+            console.log("📩 메시지 수신:", payload);
+            alert(payload.notification.title + "\n" + payload.notification.body);
+        });
+    </script>
+
+</head>
+
+<body>
+<h1>FCM TEST PAGE</h1>
+</body>
+</html>

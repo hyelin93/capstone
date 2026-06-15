@@ -19,4 +19,7 @@ public class User {
     private String username;
 
     private String password;
+
+    @Column(name = "fcm_token")
+    private String fcmToken;
 }
