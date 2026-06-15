@@ -10,7 +10,10 @@ function LoginPage() {
 
   const onSubmit = (values: LoginRequest) => {
     login.mutate(values, {
-      onSuccess: () => navigate('/notices'),
+      onSuccess: () => {
+        window.localStorage.setItem('username', values.username)
+        navigate('/notices')
+      },
     })
   }
 

@@ -1,16 +1,49 @@
-// install
-// activate
-// push 수신
-// notificationclick 처리
+importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
 
+firebase.initializeApp({
+  apiKey: 'AIzaSyAPQhBxsF1VfSIVBFX1X6acecy2wi6iG3c',
+  authDomain: 'keyword-ae4db.firebaseapp.com',
+  projectId: 'keyword-ae4db',
+  messagingSenderId: '19026335038',
+  appId: '1:19026335038:web:93a69b5fcd86612597486f',
+});
 
-// 브라우저가 푸시 메시지를 받을 수 있게 해주는 작은 백그라운드 스크립트(서비스 워커)
-// 실제 접근 경로: http://localhost:5173/firebase-messageing-sw.js
+const messaging = firebase.messaging();
 
+messaging.onBackgroundMessage((payload) => {
+  const notification = payload.notification || {};
+  const data = payload.data || {};
+  const title = notification.title || data.title || '새 공지 알림';
+  const options = {
+    body: notification.body || data.body || '등록한 키워드가 포함된 공지가 올라왔습니다.',
+    data: {
+      url: data.url || '/notices',
+    },
+  };
 
-//1. Firesbase Messaging 초기화
-//2. 백그라운드 푸시 메시지 수신
-//3. 브라우저 알림 표시
-//4. 사용자가 알림 클릭 시 특정 페이지로 이동
+  self.registration.showNotification(title, options);
+});
 
-//FCM<
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const url = event.notification.data?.url || '/notices';
+  const targetUrl = new URL(url, self.location.origin).href;
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url === targetUrl && 'focus' in client) {
+            return client.focus();
+          }
+        }
+
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(targetUrl);
+        }
+      }),
+  );
+});
