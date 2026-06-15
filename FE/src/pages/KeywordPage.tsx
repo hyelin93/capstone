@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useKeywords } from '../features/keywords/queries'
+import { PushPermissionButton } from '../features/notifications/components/PushPermissionButton'
 import { useNotices } from '../features/notices/queries'
 
 function KeywordPage() {
@@ -34,6 +35,9 @@ function KeywordPage() {
             ))}
           </select>
           <Link className="button button-dark" to="/keywords/manage">키워드 관리</Link>
+        </div>
+        <div className="push-control">
+          <PushPermissionButton />
         </div>
         <ul className="notice-list keyword-list">
           {matched.map((notice) => (

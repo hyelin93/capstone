@@ -19,9 +19,11 @@ function NoticeDetailPage() {
               <strong>{notice.category}</strong>
               <time>{notice.date}</time>
             </div>
-            <a className="detail-body" href={notice.link} target="_blank" rel="noreferrer">
-              {notice.link}
-            </a>
+            <div className="detail-body">
+               {notice.content || '내용이없습니다'}
+            </div>
+           
+            
             <a className="button button-dark" href={notice.link} target="_blank" rel="noreferrer">
               원문 보기
             </a>

@@ -274,6 +274,22 @@ a {
   min-height: 34px;
 }
 
+.push-control {
+  margin-bottom: 12px;
+}
+
+.push-status {
+  min-height: 34px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #eeeeee;
+  color: #555555;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .keyword-list .notice-row {
   color: #999999;
   background: #eeeeee;
