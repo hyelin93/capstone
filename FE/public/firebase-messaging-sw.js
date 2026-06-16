@@ -2,11 +2,11 @@ importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  apiKey: 'AIzaSyAPQhBxsF1VfSIVBFX1X6acecy2wi6iG3c',
-  authDomain: 'keyword-ae4db.firebaseapp.com',
-  projectId: 'keyword-ae4db',
-  messagingSenderId: '19026335038',
-  appId: '1:19026335038:web:93a69b5fcd86612597486f',
+  apiKey: 'AIzaSyALgjMkxYKDvPaE8Dy8_kZEX7oxASGx7uw',
+  authDomain: 'capstone-keyword-alert.firebaseapp.com',
+  projectId: 'capstone-keyword-alert',
+  messagingSenderId: '840461076941',
+  appId: '1:840461076941:web:39c6e414f532857cd1dc84',
 });
 
 const messaging = firebase.messaging();

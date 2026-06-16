@@ -1,12 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
 import { notificationApi } from '../api/notificationApi'
-import { getFirebaseToken } from '../services/firebaseMessaging'
+import {
+  getFirebaseToken,
+  resetFirebaseMessagingCache,
+} from '../services/firebaseMessaging'
 
 type PushPermissionStatus =
   | 'unsupported'
   | NotificationPermission
   | 'requesting'
   | 'token-error'
+
+async function registerMessagingServiceWorker() {
+  const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js')
+  await registration.update()
+  return navigator.serviceWorker.ready
+}
 
 export function usePushPermission() {
   const [status, setStatus] = useState<PushPermissionStatus>('default')
@@ -39,10 +48,13 @@ export function usePushPermission() {
         return
       }
 
-      const serviceWorkerRegistration = await navigator.serviceWorker.register(
-        '/firebase-messaging-sw.js',
-      )
-      const token = await getFirebaseToken(serviceWorkerRegistration)
+      const serviceWorkerRegistration = await registerMessagingServiceWorker()
+      let token = await getFirebaseToken(serviceWorkerRegistration)
+
+      if (!token) {
+        await resetFirebaseMessagingCache()
+        token = await getFirebaseToken(serviceWorkerRegistration)
+      }
 
       if (!token) {
         setStatus('token-error')
@@ -58,7 +70,33 @@ export function usePushPermission() {
       console.log('FCM Token:', token)
       await notificationApi.registerPushToken({ username, token })
       setStatus('granted')
-    } catch {
+    } catch (error) {
+      console.error('FCM token registration failed:', error)
+
+      try {
+        await resetFirebaseMessagingCache()
+        const serviceWorkerRegistration = await registerMessagingServiceWorker()
+        const token = await getFirebaseToken(serviceWorkerRegistration)
+
+        if (!token) {
+          setStatus('token-error')
+          return
+        }
+
+        const username = window.localStorage.getItem('username')
+        if (!username) {
+          setStatus('token-error')
+          return
+        }
+
+        console.log('FCM Token:', token)
+        await notificationApi.registerPushToken({ username, token })
+        setStatus('granted')
+        return
+      } catch (retryError) {
+        console.error('FCM token registration retry failed:', retryError)
+      }
+
       setStatus('token-error')
     }
   }, [])
