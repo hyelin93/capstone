@@ -7,7 +7,7 @@
   --soft: #d8d8d8;
   --button: #4b4b4b;
   --button-soft: #c7c7c7;
-  font-family: Arial, 'Noto Sans KR', system-ui, sans-serif;
+  font-family: Arial, "Noto Sans KR", system-ui, sans-serif;
   color: var(--text);
   background: var(--page-bg);
   font-synthesis: none;
@@ -288,6 +288,64 @@ a {
   color: #555555;
   font-size: 12px;
   font-weight: 700;
+}
+
+.notification-bar {
+  position: fixed;
+  left: 50%;
+  top: 30px;
+  z-index: 50;
+  width: min(calc(100% - 15px), 292px);
+  min-height: 68px;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: 1fr 30px;
+  align-items: stretch;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid #cfcfcf;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.notification-content {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.notification-content strong,
+.notification-content span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-content strong {
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.notification-content span {
+  color: #555555;
+  font-size: 11px;
+}
+
+.notification-close {
+  width: 30px;
+  border: 0;
+  border-radius: 4px;
+  background: #eeeeee;
+  color: #555555;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .keyword-list .notice-row {
