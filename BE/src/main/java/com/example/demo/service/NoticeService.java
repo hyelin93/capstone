@@ -3,10 +3,8 @@ package com.example.demo.service;
 import com.example.demo.adapter.NoticeAdapter;
 import com.example.demo.crawler.NoticeCrawler;
 import com.example.demo.dto.Notice;
-import com.example.demo.entity.NoticeEntity;
 import com.example.demo.repository.NoticeRepository;
-import com.example.demo.entity.Keyword;
-import com.example.demo.repository.KeywordRepository;
+import com.example.demo.entity.NoticeEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,8 +28,7 @@ public class NoticeService {
     private final NoticeCrawler noticeCrawler;
     private final NoticeRepository noticeRepository;
     private final NoticeAdapter noticeAdapter;
-    private final KeywordRepository keywordRepository;
-    private final FcmService fcmService;
+    private final NotificationService notificationService;
 
     @Transactional
     public List<Notice> getLatestNotices() {
@@ -137,24 +134,11 @@ public class NoticeService {
             }
 
             if (!newNoticesByUrl.isEmpty()) {
-
                 noticeRepository.saveAll(new ArrayList<>(newNoticesByUrl.values()));
 
-                List<Keyword> keywords = keywordRepository.findAll();
-
                 for (Notice notice : crawledNotices) {
-
-                    boolean matched = keywords.stream()
-                            .anyMatch(keyword ->
-                                    notice.title() != null &&
-                                            notice.title().contains(keyword.getWord()));
-
-                    if (matched) {
-
-                        fcmService.sendNotification(
-                                "새 공지사항 등록",
-                                notice.title()
-                        );
+                    if (newNoticesByUrl.containsKey(notice.url())) {
+                        notificationService.sendNoticeIfKeywordMatched(notice);
                     }
                 }
             }
