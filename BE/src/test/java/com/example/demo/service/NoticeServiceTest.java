@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -123,6 +124,22 @@ class NoticeServiceTest {
 
         assertThat(savedEntity.getContent()).isEqualTo("상세 본문");
         assertThat(notice.content()).isEqualTo("상세 본문");
+    }
+
+    @Test
+    // 테스트용 장학금 공지를 생성하고 키워드 알림 매칭을 호출하는지 검증합니다.
+    void createsTestNotice() {
+        when(noticeRepository.save(any(NoticeEntity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Notice notice = noticeService.createTestNotice();
+
+        assertThat(notice.title()).isEqualTo("2026학년도 2학기 장학금 신청 안내");
+        assertThat(notice.content()).contains("장학금 신청");
+        assertThat(notice.department()).isEqualTo("학생지원팀");
+        assertThat(notice.keyword()).isEqualTo("학사");
+        assertThat(notice.url()).startsWith("https://www.syu.ac.kr/test/notices/test-notice-");
+        verify(notificationService).sendNoticeIfKeywordMatched(notice);
     }
 
     // 테스트에서 사용할 공지 DTO를 생성합니다.

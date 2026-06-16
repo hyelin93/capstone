@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,6 +26,20 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class NoticeService {
+    private static final String TEST_NOTICE_TITLE = "2026학년도 2학기 장학금 신청 안내";
+    private static final String TEST_NOTICE_CONTENT = """
+            2026학년도 2학기 재학생 장학금 신청 일정을 아래와 같이 안내합니다.
+
+            신청 대상은 2026학년도 2학기 등록 예정인 재학생이며, 직전 학기 성적과 소득 구간, 교내 장학 기준을 종합하여 선발합니다. 장학금 신청을 희망하는 학생은 기간 내 신청서와 증빙서류를 제출해 주시기 바랍니다.
+
+            신청 기간: 2026년 6월 20일 10:00 ~ 2026년 7월 5일 17:00
+            제출 서류: 장학금 신청서, 성적증명서, 소득 관련 증빙서류
+            제출 방법: 학생지원팀 이메일 제출 또는 방문 제출
+            문의: 학생지원팀 02-0000-0000
+
+            기간 내 서류를 제출하지 않거나 필수 서류가 누락된 경우 장학금 심사 대상에서 제외될 수 있습니다. 세부 선발 기준과 지급 일정은 심사 완료 후 개별 안내됩니다.
+            """;
+
     private final NoticeCrawler noticeCrawler;
     private final NoticeRepository noticeRepository;
     private final NoticeAdapter noticeAdapter;
@@ -59,6 +74,27 @@ public class NoticeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."));
         fillContentIfMissing(entity);
         return noticeAdapter.toDto(entity);
+    }
+
+    @Transactional
+    public Notice createTestNotice() {
+        String originNoticeId = "test-notice-" + System.currentTimeMillis();
+        Notice testNotice = new Notice(
+                null,
+                TEST_NOTICE_TITLE,
+                "https://www.syu.ac.kr/test/notices/" + originNoticeId + "/",
+                TEST_NOTICE_CONTENT,
+                "학생지원팀",
+                "학사",
+                LocalDateTime.now(),
+                false,
+                originNoticeId
+        );
+
+        NoticeEntity savedEntity = noticeRepository.save(noticeAdapter.toEntity(testNotice));
+        Notice savedNotice = noticeAdapter.toDto(savedEntity);
+        notificationService.sendNoticeIfKeywordMatched(savedNotice);
+        return savedNotice;
     }
 
     @Transactional

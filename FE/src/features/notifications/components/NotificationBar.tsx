@@ -33,11 +33,18 @@ export function NotificationBar() {
         return
       }
 
+      console.log('FCM foreground message:', payload)
+
       setNotification(
         normalizeNotification({
-          title: payload.notification?.title || payload.data?.title,
-          body: payload.notification?.body || payload.data?.body,
-          url: payload.data?.url,
+          title: payload.notification?.title || payload.data?.title || payload.data?.noticeTitle,
+          body:
+            payload.notification?.body ||
+            payload.data?.body ||
+            payload.data?.message ||
+            payload.data?.content ||
+            payload.data?.noticeContent,
+          url: payload.data?.url || payload.data?.link,
         }),
       )
     }).then((cleanup) => {
