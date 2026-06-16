@@ -42,6 +42,20 @@ export const getFirebaseToken = async (
   });
 };
 
+export const resetFirebaseMessagingCache = async () => {
+  if (!('indexedDB' in window)) {
+    return;
+  }
+
+  await new Promise<void>((resolve) => {
+    const request = window.indexedDB.deleteDatabase('firebase-messaging-database');
+
+    request.onsuccess = () => resolve();
+    request.onerror = () => resolve();
+    request.onblocked = () => resolve();
+  });
+};
+
 export const subscribeForegroundMessage = async (
   onReceive: (payload: MessagePayload) => void,
 ) => {

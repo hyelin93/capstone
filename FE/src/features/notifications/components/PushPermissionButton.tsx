@@ -8,7 +8,16 @@ export function PushPermissionButton() {
   }
 
   if (status === 'granted') {
-    return <p className="push-status">알림 설정 완료</p>
+    return (
+      <button
+        className="push-status push-status-button"
+        type="button"
+        onClick={requestPermission}
+        disabled={isPending}
+      >
+        {isPending ? '알림 재설정 중...' : '알림 설정 완료'}
+      </button>
+    )
   }
 
   if (status === 'denied') {
