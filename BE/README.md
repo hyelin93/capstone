@@ -344,4 +344,4 @@ BE/
 - 현재 DB는 H2 인메모리입니다. 운영 DB로 바꿀 때는 datasource, 계정 정보, JPA ddl 전략, H2 콘솔 비활성화 여부를 함께 조정해야 합니다.
 - `notice.url`에 DB unique constraint가 없습니다. 스케줄러와 API가 동시에 같은 신규 공지를 저장하려 하면 중복 저장 가능성이 있습니다.
 - 사용자 API는 보안 처리가 없는 개발용 구현입니다. 실제 서비스에서는 비밀번호 해싱, 인증 토큰, 입력 검증, 오류 응답 형식을 추가해야 합니다.
-- 푸시 알림 토큰 등록 API인 `POST /notifications/token`은 아직 백엔드에 구현되어 있지 않습니다.
+- 푸시 알림 토큰 등록 API인 `POST /notifications/token`은 `username`과 `token`을 받아 사용자 `fcmToken`에 저장합니다.

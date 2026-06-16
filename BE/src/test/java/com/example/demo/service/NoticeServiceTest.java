@@ -26,7 +26,13 @@ class NoticeServiceTest {
     private final NoticeCrawler noticeCrawler = mock(NoticeCrawler.class);
     private final NoticeRepository noticeRepository = mock(NoticeRepository.class);
     private final NoticeAdapter noticeAdapter = new NoticeAdapter();
-    private final NoticeService noticeService = new NoticeService(noticeCrawler, noticeRepository, noticeAdapter);
+    private final NotificationService notificationService = mock(NotificationService.class);
+    private final NoticeService noticeService = new NoticeService(
+            noticeCrawler,
+            noticeRepository,
+            noticeAdapter,
+            notificationService
+    );
 
     @Test
     @SuppressWarnings("unchecked")
