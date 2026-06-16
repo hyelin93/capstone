@@ -18,37 +18,44 @@ function KeywordPage() {
     : []
 
   return (
-    <main className="phone-page">
+    <main className="phone-page keyword-page">
       <section className="screen">
-        <Link className="back-link" to="/notices">&lt; 뒤로</Link>
-        <h1>{matched.length}건의 '{activeKeyword}' 공지 알림</h1>
-        <div className="keyword-actions">
-          <select
-            aria-label="키워드 선택"
-            value={activeKeyword}
-            onChange={(event) => setSelected(event.target.value)}
-          >
-            {keywords?.map((keyword) => (
-              <option key={keyword.id} value={keyword.word}>
-                {keyword.word}
-              </option>
+        <div className="keyword-header">
+          <Link className="back-link" to="/notices">&lt; 뒤로</Link>
+          <h1>{matched.length}건의 '{activeKeyword}' 공지 알림</h1>
+          <div className="keyword-actions">
+            <select
+              aria-label="키워드 선택"
+              value={activeKeyword}
+              onChange={(event) => setSelected(event.target.value)}
+            >
+              {keywords?.map((keyword) => (
+                <option key={keyword.id} value={keyword.word}>
+                  {keyword.word}
+                </option>
+              ))}
+            </select>
+            <Link className="button button-dark" to="/keywords/manage">키워드 관리</Link>
+          </div>
+          <div className="push-control">
+            <PushPermissionButton />
+          </div>
+        </div>
+        <div className="keyword-scroll-area">
+          <ul className="notice-list keyword-list">
+            {matched.map((notice) => (
+              <li key={notice.id}>
+                <Link className="notice-row" to={`/notices/${notice.id}`}>
+                  <div className="notice-row-content">
+                    <span>{notice.title}</span>
+                    <time>{notice.date}</time>
+                  </div>
+                  <span className="notice-row-arrow">›</span>
+                </Link>
+              </li>
             ))}
-          </select>
-          <Link className="button button-dark" to="/keywords/manage">키워드 관리</Link>
+          </ul>
         </div>
-        <div className="push-control">
-          <PushPermissionButton />
-        </div>
-        <ul className="notice-list keyword-list">
-          {matched.map((notice) => (
-            <li key={notice.id}>
-              <Link className="notice-row" to={`/notices/${notice.id}`}>
-                <span>{notice.title}</span>
-                <time>{notice.date}</time>
-              </Link>
-            </li>
-          ))}
-        </ul>
       </section>
     </main>
   )

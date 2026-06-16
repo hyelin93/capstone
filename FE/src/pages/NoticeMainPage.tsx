@@ -16,13 +16,12 @@ const categories = [
 function NoticeMainPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const categoryParam = searchParams.get('category')
-  const selectedCategory = categories.find((category) => category.value === (categoryParam ?? '')) ?? categories[0]
+  const selectedCategory = categories.find((c) => c.value === (categoryParam ?? '')) ?? categories[0]
 
-  // '전체' 선택 시 category 필터 없이 전체 조회
   const { data: notices, isLoading, isError } = useNotices(selectedCategory.value || undefined)
 
   return (
-    <main className="phone-page">
+    <main className="phone-page notice-page">
       <section className="screen">
         <header className="top-bar">
           <h1>{selectedCategory.label}</h1>
@@ -46,24 +45,27 @@ function NoticeMainPage() {
             ))}
           </select>
         </label>
-        {isLoading && <p className="list-status">불러오는 중...</p>}
-        {isError && <p className="list-status">공지를 불러오지 못했습니다.</p>}
-        {!isLoading && !isError && notices?.length === 0 && (
-          <p className="list-status">공지가 없습니다.</p>
-        )}
-        <ul className="notice-list">
-          {notices?.map((notice) => (
-            <li key={notice.id}>
-              <Link className="notice-row" to={`/notices/${notice.id}`}>
-                <span>{notice.title}</span>
-                <time>{notice.date}</time>
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <Link className="floating-plus" to="/keywords/manage" aria-label="키워드 관리">
-          +
-        </Link>
+
+        <div className="notice-scroll-area">
+          {isLoading && <p className="list-status">불러오는 중...</p>}
+          {isError && <p className="list-status">공지를 불러오지 못했습니다.</p>}
+          {!isLoading && !isError && notices?.length === 0 && (
+            <p className="list-status">공지가 없습니다.</p>
+          )}
+          <ul className="notice-list">
+            {notices?.map((notice) => (
+              <li key={notice.id}>
+                <Link className="notice-row" to={`/notices/${notice.id}`}>
+                  <div className="notice-row-content">
+                    <span>{notice.title}</span>
+                    <time>{notice.date}</time>
+                  </div>
+                  <span className="notice-row-arrow">›</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
     </main>
   )

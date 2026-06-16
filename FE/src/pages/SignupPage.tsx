@@ -25,44 +25,52 @@ function SignupPage() {
 
   return (
     <main className="phone-page auth-page">
-      <section className="auth-panel form-panel" aria-labelledby="signup-title">
-        <Link className="back-link" to="/login">&lt; 뒤로</Link>
-        <h1 id="signup-title">회원가입</h1>
+      <section className="auth-panel login-panel" aria-labelledby="signup-title">
+        <div className="login-header">
+          <h1 id="signup-title">회원가입</h1>
+        
+        </div>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <label className="field">
-            <span>아이디</span>
-            <input
-              type="text"
-              placeholder="아이디를 입력하세요"
-              {...register('username', { required: true })}
-            />
-          </label>
-          <label className="field">
-            <span>비밀번호</span>
-            <input
-              type="password"
-              placeholder="비밀번호를 입력하세요"
-              {...register('password', { required: true })}
-            />
-          </label>
-          <label className="field">
-            <span>비밀번호 확인</span>
-            <input
-              type="password"
-              placeholder="비밀번호를 다시 입력하세요"
-              {...register('passwordConfirm', {
-                required: true,
-                validate: (value) => value === password || '비밀번호가 일치하지 않습니다.',
-              })}
-            />
-          </label>
+          <div className="field-group">
+            <label className="field">
+              <span className="field-label">아이디</span>
+              <input
+                type="text"
+                placeholder="아이디를 입력하세요"
+                {...register('username', { required: true })}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">비밀번호</span>
+              <input
+                type="password"
+                placeholder="비밀번호를 입력하세요"
+                {...register('password', { required: true })}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">비밀번호 확인</span>
+              <input
+                type="password"
+                placeholder="비밀번호를 다시 입력하세요"
+                {...register('passwordConfirm', {
+                  required: true,
+                  validate: (value) => value === password || '비밀번호가 일치하지 않습니다.',
+                })}
+              />
+            </label>
+          </div>
           {formState.errors.passwordConfirm && (
             <p className="form-error">{formState.errors.passwordConfirm.message}</p>
           )}
           {signup.isError && <p className="form-error">회원가입에 실패했습니다.</p>}
-          <button className="button button-dark" type="submit" disabled={signup.isPending}>
-            {signup.isPending ? '가입 중...' : '회원가입'}
-          </button>
+          <div className="auth-actions">
+            <button className="button button-dark login-btn" type="submit" disabled={signup.isPending}>
+              {signup.isPending ? '가입 중...' : '회원가입'}
+            </button>
+            <div className="login-divider"><span>또는</span></div>
+            <Link className="signup-link" to="/login">이미 계정이 있으신가요? <strong>로그인</strong></Link>
+          </div>
         </form>
       </section>
     </main>
