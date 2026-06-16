@@ -19,35 +19,41 @@ function LoginPage() {
 
   return (
     <main className="phone-page auth-page">
-      <section className="auth-panel form-panel" aria-labelledby="login-title">
-        <h1 id="login-title">학사공지<br />푸시 알림</h1>
+      <section className="auth-panel login-panel" aria-labelledby="login-title">
+        <div className="login-header">
+          <h1 id="login-title">학사공지 푸시 알림</h1>
+          <p className="login-subtitle">학교 공지사항을 빠르게 받아보세요</p>
+        </div>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <label className="field">
-            <span>아이디</span>
-            <input
-              type="text"
-              placeholder="아이디를 입력하세요"
-              {...register('username', { required: true })}
-            />
-          </label>
-          <label className="field">
-            <span>비밀번호</span>
-            <input
-              type="password"
-              placeholder="비밀번호를 입력하세요"
-              {...register('password', { required: true })}
-            />
-          </label>
-          {login.isError && <p className="form-error">로그인에 실패했습니다.</p>}
+          <div className="field-group">
+            <label className="field">
+              <span className="field-label">아이디</span>
+              <input
+                type="text"
+                placeholder="아이디를 입력하세요"
+                {...register('username', { required: true })}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">비밀번호</span>
+              <input
+                type="password"
+                placeholder="비밀번호를 입력하세요"
+                {...register('password', { required: true })}
+              />
+            </label>
+          </div>
+          {login.isError && <p className="form-error">아이디 또는 비밀번호를 확인해주세요.</p>}
           <div className="auth-actions">
             <button
-              className="button button-muted"
+              className="button button-dark login-btn"
               type="submit"
               disabled={login.isPending || formState.isSubmitting}
             >
               {login.isPending ? '로그인 중...' : '로그인'}
             </button>
-            <Link className="button button-dark" to="/signup">회원가입</Link>
+            <div className="login-divider"><span>또는</span></div>
+            <Link className="signup-link" to="/signup">계정이 없으신가요? <strong>회원가입</strong></Link>
           </div>
         </form>
       </section>
