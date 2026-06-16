@@ -3,7 +3,7 @@ import { fetchNotice, fetchNotices } from './api'
 import type { Notice } from './types'
 
 export const NOTICE_PAGE_SIZE = 20
-const NOTICE_CACHE_TTL = 5 * 60 * 1000
+const NOTICE_CACHE_TTL = 30 * 60 * 1000
 const NOTICE_CACHE_GC_TIME = 30 * 60 * 1000
 
 interface NoticeCachePayload {
@@ -26,7 +26,8 @@ function readCachedNotices(category?: string): NoticeCachePayload | undefined {
   if (typeof window === 'undefined') return undefined
 
   try {
-    const cached = window.sessionStorage.getItem(getNoticeCacheKey(category))
+    const cacheKey = getNoticeCacheKey(category)
+    const cached = window.sessionStorage.getItem(cacheKey) ?? window.localStorage.getItem(cacheKey)
     if (!cached) return undefined
 
     const parsed = JSON.parse(cached) as NoticeCachePayload
@@ -45,10 +46,10 @@ function writeCachedNotices(category: string | undefined, data: Notice[]) {
   if (typeof window === 'undefined') return
 
   try {
-    window.sessionStorage.setItem(
-      getNoticeCacheKey(category),
-      JSON.stringify({ savedAt: Date.now(), data: data.slice(0, NOTICE_PAGE_SIZE) }),
-    )
+    const cacheKey = getNoticeCacheKey(category)
+    const cacheValue = JSON.stringify({ savedAt: Date.now(), data: data.slice(0, NOTICE_PAGE_SIZE) })
+    window.sessionStorage.setItem(cacheKey, cacheValue)
+    window.localStorage.setItem(cacheKey, cacheValue)
   } catch {
     // 저장 공간 제한 등 캐시 실패는 화면 동작에 영향을 주지 않는다.
   }
@@ -70,6 +71,7 @@ export function useNotices(category?: string) {
     gcTime: NOTICE_CACHE_GC_TIME,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    refetchOnMount: false,
     retry: 1,
   })
 }
@@ -105,15 +107,17 @@ export function useInfiniteNotices(category?: string) {
     gcTime: NOTICE_CACHE_GC_TIME,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    refetchOnMount: false,
     retry: 1,
   })
 }
 
-export function useNotice(id: number) {
+export function useNotice(id: number, initialNotice?: Notice) {
   return useQuery({
     queryKey: noticeKeys.detail(id),
     queryFn: () => fetchNotice(id),
     enabled: Number.isFinite(id),
+    placeholderData: initialNotice,
     staleTime: NOTICE_CACHE_TTL,
     gcTime: NOTICE_CACHE_GC_TIME,
     refetchOnWindowFocus: false,

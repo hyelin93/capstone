@@ -45,7 +45,7 @@ function KeywordPage() {
           <ul className="notice-list keyword-list">
             {matched.map((notice) => (
               <li key={notice.id}>
-                <Link className="notice-row" to={`/notices/${notice.id}`}>
+                <Link className="notice-row" to={`/notices/${notice.id}`} state={{ notice }}>
                   <div className="notice-row-content">
                     <span>{notice.title}</span>
                     <time>{notice.date}</time>

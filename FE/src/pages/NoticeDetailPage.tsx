@@ -1,10 +1,17 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { useNotice } from '../features/notices/queries'
+import type { Notice } from '../features/notices/types'
+
+interface NoticeDetailLocationState {
+  notice?: Notice
+}
 
 function NoticeDetailPage() {
   const { noticeId } = useParams()
+  const location = useLocation()
   const id = Number(noticeId)
-  const { data: notice, isLoading, isError } = useNotice(id)
+  const initialNotice = (location.state as NoticeDetailLocationState | null)?.notice
+  const { data: notice, isLoading, isError, isFetching } = useNotice(id, initialNotice)
 
   return (
     <main className="phone-page detail-page">
@@ -21,7 +28,7 @@ function NoticeDetailPage() {
                 <time>{notice.date}</time>
               </div>
               <div className="detail-body">
-                {notice.content || '내용이 없습니다.'}
+                {notice.content || (isFetching ? '본문을 불러오는 중...' : '내용이 없습니다.')}
               </div>
             </>
           )}

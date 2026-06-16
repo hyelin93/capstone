@@ -63,9 +63,9 @@ function NoticeMainPage() {
             <p className="list-status">공지가 없습니다.</p>
           )}
           <ul className="notice-list">
-            {notices.map((notice, index) => (
-              <li key={`${notice.id}-${index}`}>
-                <Link className="notice-row" to={`/notices/${notice.id}`}>
+            {notices.map((notice) => (
+              <li key={notice.id}>
+                <Link className="notice-row" to={`/notices/${notice.id}`} state={{ notice }}>
                   <div className="notice-row-content">
                     <span>{notice.title}</span>
                     <time>{notice.date}</time>
